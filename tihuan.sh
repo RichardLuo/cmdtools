@@ -1,0 +1,1 @@
+perl -pi.bak -e 's[^#include\s+"\.\./.*?(\w+.h)"][#include "$1"]' *.[ch]
