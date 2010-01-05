@@ -16,9 +16,9 @@
 
 
 
-# sudo apt-get clean
-# cd /var/lib/apt
-# sudo mv lists lists.org
-# sudo mkdir -p lists/partial
-# sudo apt-get clean
-# sudo apt-get update
+sudo apt-get clean
+cd /var/lib/apt
+sudo mv lists lists.org
+sudo mkdir -p lists/partial
+sudo apt-get clean
+sudo apt-get update
