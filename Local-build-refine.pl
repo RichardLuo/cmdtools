@@ -23,7 +23,7 @@ sub file_has_main_func_definition {
   chomp $file;
   my $contents = join('', $sh->cat("$file")); # there should be a better way to do this.
 #  print $contents;
-  if ($contents =~ /\n\s*(int|void)\s+(main|ACE_TMAIN)\s*\(.*?\)/m) { # refex multiline match
+  if ($contents =~ /\n^\s*(int|void|)\s+(main|ACE_TMAIN)\s*\(.*?\)/m) { # refex multiline match
       print "Note: $file have main func definition \n";
       return 1;
   }
@@ -86,7 +86,7 @@ foreach (@src_files, @head_files) {
   }
 }
 
-my $examp_mk = 'makefiles/example.mk';
+my $examp_mk = 'example.mk';
 
 if (-f "Makefile") {
     my $prefix = $sh->date(" +%Y%m%d_%S");
@@ -97,7 +97,7 @@ if (-f "Makefile") {
 splice @commands, 0, 0, "mkdir -p $inc_dir" unless @head_files <= 0;
 splice @commands, 0, 0, "mkdir -p $src_dir" unless $need_src_dir == 0;
 
-push @commands, "cp $ENV{DOOB_ROOT}/$examp_mk ./Makefile";
+push @commands, "cp $ENV{HOMESYS_ROOT}/kkbuild/$examp_mk ./Makefile";
 
 print "================ I will do executing the following commands ================" . "\n";
 print_array @commands;
