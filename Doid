@@ -1,0 +1,56 @@
+#!/bin/bash
+
+################################################################
+# file: MMM.sh
+# author: Richard Luo
+# date: 2010/12/22 15:11:28
+################################################################
+
+
+source ~/.droid
+
+
+function get_envsetup()
+{
+    local T=$(Gettop)
+    local F=$T/build/envsetup.sh 
+    if [ -f $F ]; then
+        echo $F
+    else
+        exit 100
+    fi
+}
+
+ENVSETUP=$(get_envsetup)
+
+if [ -z $ENVSETUP ]; then
+    echo "failed to get the envsetup.sh file"
+    exit 100
+fi
+
+if [ ! -f $ENVSETUP ]; then
+    echo "could not find the file:$ENVSETUP"
+    exit 100
+fi
+
+source $ENVSETUP
+
+# help
+
+# mmm $@
+CMD=$1
+
+if help | egrep "\<$1\>"; then
+    echo "================================================================ $1 greped ok"
+else
+    echo "$1 greped failed"
+fi
+
+shift
+
+# echo "================"
+# echo "$@"
+# echo $*
+
+$CMD $*
+
