@@ -23,7 +23,7 @@ my $is_start = 0;
 for(;<IN_FILE>; ++$line ) {
     chop;
     if ($is_start == 0) {
-        if ( /(To|From):.*Keyel/i ) {
+        if ( /(To|From):.*Hello/i ) {
             $is_start = 1;
         }
         if ( /(To|From):.*richard/i ) {
