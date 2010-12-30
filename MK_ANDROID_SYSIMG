@@ -1,0 +1,24 @@
+#!/bin/sh
+################################################################
+# file: mk_android_sysimg.sh
+# author: Richard Luo
+# date: 2010/12/28 13:43:57
+################################################################
+
+Date=`date +%Y%m%d%S`
+
+if [ -d system ]; then
+    if [ -f system.img ]; then
+        echo "backup system.img to system.img.org.$Date"
+        mv system.img system.img.org.$Date
+        mkyaffs2image  -f system system.img
+        echo "make android system image ok"
+        ls -l system.img
+        exit 0
+    fi
+fi
+
+echo "failed to make system image!!!"
+exit 100
+
+
