@@ -137,9 +137,9 @@ fi
 	    find $DIR \( -type f -o -type l \) -a \(  ! -regex ".* +.*" \) -a \(  ! -regex ".*lib\w+\.\(a\|so\).*" \)
     fi
     ) | \
-        egrep -i '\.(xml|erl|java|py|pl|cxx|cpp|c|h|hpp|hxx|hh|mk|s|sh)$' | \
+        egrep -i '\.(xml|erl|java|py|pl|cxx|cpp|c|h|hpp|hxx|hh|mk|s|sh|aidl)$' | \
         sed  -e '/\/tsrc\//d' -e '/\/build_arm\//d' -e '/\/opensrc\//d' \
-        -e '/upnp.sample\//d' -e '/\/lyk.del\//d' -e '/\/CVS\//d' -e '/\/RCS\//d' -e 's/^\.\///' | \
+        -e '/upnp.sample\//d' -e '/\/lyk.del\//d'  -e '/\/.*lyk.bak\//d' -e '/\/CVS\//d' -e '/\/RCS\//d' -e 's/^\.\///' | \
         sort > $LIST_FILE
 
 if [ "X$VERBOSE" != "X" ]
