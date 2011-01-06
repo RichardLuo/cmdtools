@@ -1,0 +1,24 @@
+#!/bin/bash
+################################################################
+# file: mk_android_sysimg.sh
+# author: Richard Luo
+# date: 2010/12/28 13:43:57
+################################################################
+
+Date=`date +%Y%m%d%S`
+
+if [ -d root ]; then
+    if [ -f ramdisk.img ]; then
+        echo "backup ramdisk.img to ramdisk.img.org.$Date"
+        mv ramdisk.img ramdisk.img.org.$Date
+        mkbootfs root/ | minigzip > ramdisk.img
+        echo "make android ramdisk ok"
+        ls -l ramdisk.img
+        exit 0
+    fi
+fi
+
+echo "failed to make the ramdisk!!!"
+exit 100
+
+
