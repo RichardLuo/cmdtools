@@ -7,18 +7,51 @@
 
 Date=`date +%Y%m%d%S`
 
-if [ -d system ]; then
-    if [ -f system.img ]; then
-        echo "backup system.img to system.img.org.$Date"
-        mv system.img system.img.org.$Date
-        mkyaffs2image  -f system system.img
-        echo "make android system image ok"
-        ls -l system.img
-        exit 0
+source $HOME/bin/common/android.common.sh
+
+function make_system_image() 
+{
+    if [ -d system ]; then
+        if [ -f system.img ]; then
+            echo "backup system.img to system.img.org.$Date"
+            mv system.img system.img.org.$Date
+            mkyaffs2image  -f system system.img
+            echo "make android system image ok"
+            ls -l system.img
+            exit 0
+        fi
     fi
-fi
+    echo "failed to make system image!!!"
+    exit 100
+}
 
-echo "failed to make system image!!!"
-exit 100
+function copy_media_files()
+{
+    local media_dir=system/media
 
+    if [ ! -d $media_dir ]; then
+        mkdir $media_dir
+    fi
 
+    local open_core_medias=$HOME/msrc/opencore/build_config/opencore_dynamic/build/pe_test/
+    for s in mp3 wav mp4; do
+        if cp $open_core_medias/*.$s $media_dir/; then
+            echo "copy media *.$s files ok"
+        else
+            echo "copy media *.$s failed"
+            exit 100
+        fi
+    done
+    
+
+}
+
+copy_busybox
+
+link_busybox_shell grep
+link_busybox_shell ls
+link_busybox_shell find
+
+copy_media_files
+
+make_system_image

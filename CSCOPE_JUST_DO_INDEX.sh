@@ -13,4 +13,6 @@ if [ ! -f $LIST_FILE ]; then
     exit 100
 fi
 
+echo "cscope -b -i $LIST_FILE -f $DATABASE_FILE"
 cscope -b -i $LIST_FILE -f $DATABASE_FILE
+

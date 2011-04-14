@@ -100,7 +100,7 @@ do
     ( 
         if [ "X$RECURSE" = "X" ]
         then
-	# Ugly, inefficient, but it works.
+        # Ugly, inefficient, but it works.
 	        for f in *
 	        do
 	            echo "$DIR/$f"

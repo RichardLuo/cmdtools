@@ -7,13 +7,38 @@
 
 Date=`date +%Y%m%d%S`
 
+function is_smdkv210()
+{
+    local dir=$(basename $PWD)
+    if [ $dir = "smdkv210" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function copy_busybox()
+{
+    cp -f /tc/busybox root/sbin/
+    cd root/sbin/ && ln -fs busybox sh && cd -
+}
+
+# copy_busybox
+    
 if [ -d root ]; then
     if [ -f ramdisk.img ]; then
         echo "backup ramdisk.img to ramdisk.img.org.$Date"
         mv ramdisk.img ramdisk.img.org.$Date
         mkbootfs root/ | minigzip > ramdisk.img
-        echo "make android ramdisk ok"
-        ls -l ramdisk.img
+        target=ramdisk.img
+        if is_smdkv210; then
+            mkimage -A arm -O linux -T ramdisk -C none -a 0x30800000 -n "ramdisk" -d ramdisk.img ramdisk-uboot.img
+            target=ramdisk-uboot.img
+        fi
+
+        echo "make android ramdisk [$target] ok"
+        ls -l $target
+
         exit 0
     fi
 fi
