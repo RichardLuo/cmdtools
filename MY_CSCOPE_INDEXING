@@ -1,0 +1,43 @@
+#!/bin/bash
+
+source $HOME/bin/common/my_cscope_common.sh
+
+while [ -n "$1" ]
+do
+    case "$1" in
+        -l)
+            echo "LIST_ONLY=1"
+	        LIST_ONLY=1
+	        ;;
+        -i)
+            echo "INDEXING_ONLY=1"
+	        INDEXING_ONLY=1
+            ;;
+        *)
+            echo "ALL=1"
+            ALL=1
+            ;;
+    esac
+    shift
+done
+
+import_cscope_config
+
+if [ "X$LIST_ONLY" != "X" ]; then
+    echo "just make file list"
+    gen_file_list 
+    exit 0
+fi
+
+
+if [ "X$INDEXING_ONLY" != "X" ]; then
+    echo "just make db file"
+    cscope -b -i cscope.files -f cscope.out
+    exit 0
+fi
+
+echo "make all"
+gen_file_list && cscope -b -i cscope.files -f cscope.out
+
+
+    

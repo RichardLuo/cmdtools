@@ -1,0 +1,18 @@
+#! /bin/sh
+
+target_dir=/home/richard/share/ak4
+board_dir=/home/richard/doob/trunk/sys/boot_loader/NorBsp/board/at91sam9260ek
+
+make -C $board_dir/norflash1 clean all && make -C $board_dir/norflash2 clean all && make -C $board_dir/norflash3 clean all
+
+cp $board_dir/norflash1/norflash1_at91sam9260ek.bin $target_dir/nor1.bin \
+&& cp $board_dir/norflash2/norflash2_at91sam9260ek.bin $target_dir/nor2.bin
+
+ubootdir=~/doob/trunk/sys/boot_loader/u-boot-1.1.5-concise
+make -C $ubootdir clean all && cp -f $ubootdir/u-boot.bin $target_dir
+
+chmod 666 $target_dir/*
+cp -f $target_dir/* /tftpboot
+ls -lsh $target_dir /tftpboot
+
+

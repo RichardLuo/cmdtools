@@ -69,10 +69,6 @@
 ###############################################################################
 set -e
 
-# May have to edit this:
-PATH="/usr/local/bin:/sbin:/usr/sbin:/bin:/usr/bin:$PATH"
-export PATH
-
 LIST_ONLY=
 DIR='.'
 LIST_FILE='cscope.files'
@@ -80,6 +76,10 @@ DATABASE_FILE='cscope.out'
 RECURSE=
 VERBOSE=
 export DIR RECURSE			# Need to pass these to subprocesses
+
+source ~/bin/common/my_cscope_common.sh
+
+import_cscope_config
 
 while [ -n "$1" ]
 do
@@ -118,6 +118,7 @@ do
     shift
 done
 
+
 cd $DIR
 
 if [ "X$VERBOSE" != "X" ]
@@ -125,22 +126,18 @@ then
     echo "Creating list of files to index ..."
 fi
 
-( 
-    if [ "X$RECURSE" = "X" ]
-    then
+if [ "X$RECURSE" = "X" ]
+then
 	# Ugly, inefficient, but it works.
-	    for f in *
-	    do
-	        echo "$DIR/$f"
-	    done
-    else
-	    find $DIR \( -type f -o -type l \) -a \(  ! -regex ".* +.*" \) -a \(  ! -regex ".*lib\w+\.\(a\|so\).*" \)
-    fi
-    ) | \
-        egrep -i '\.(xml|erl|java|py|pl|cxx|cpp|c|h|hpp|hxx|hh|mk|s|sh|aidl)$' | \
-        sed  -e '/\/tsrc\//d' -e '/\/build_arm\//d' -e '/\/opensrc\//d' \
-        -e '/upnp.sample\//d' -e '/\/lyk.del\//d'  -e '/\/.*lyk.bak\//d' -e '/\/CVS\//d' -e '/\/RCS\//d' -e 's/^\.\///' | \
-        sort > $LIST_FILE
+	for f in *
+	do
+	    echo "$DIR/$f"
+	done
+else
+    echo "gen_file_list"
+    pwd
+    gen_file_list
+fi
 
 if [ "X$VERBOSE" != "X" ]
 then
