@@ -5,6 +5,11 @@
 # date: 2010/04/18 11:15:55
 ################################################################
 
+## set -ix
+# export TARGET_PRODUCT=full_crespo
+export TARGET_PRODUCT=cyanogen_crespo
+export TARGET_BUILD_VARIANT=eng
+
 function Gettop
 {
     local TOPFILE=build/core/envsetup.mk
@@ -61,9 +66,59 @@ function is_the_system_bin_file()
     return 0
 }
 
-function mmm_current_module_and_install()
+# $1: the input file path
+function get_push_path()
 {
-    local theFile=`mmm .|grep Install:|sed -e 's/Install: //'`
+    echo $1 | perl -pe 's/.*(\/system\/.*)/\1/'
+}
+
+# $1: the path to AndroidManifest.xml
+function get_manifest_package_name()
+{
+    local package=`ParseAndroidManifest.pl < $1`
+    echo $package
+}
+
+function is_apk_file()
+{
+    local apk_file=$1
+    if ! echo $apk_file | grep -qE "apk$"; then
+        echo "$apk_file is not apk file!"
+        return 1
+    fi
+
+    if [ ! -f $apk_file ]; then
+        echo "$apk_file doesn't exist!"
+        return 1
+    fi
+    return 0
+}
+
+# $1: the file need to be installed
+function install_droid_apk()
+{
+    local apk_file=$1
+    if ! is_apk_file $apk_file; then
+        exit 198
+    fi
+
+    local package=$(get_manifest_package_name ./AndroidManifest.xml)
+
+    echo "try uninstall $package"
+    adb uninstall $package
+
+    if ! adb install $apk_file; then
+        echo "failed to install $package"
+        exit 198
+    fi
+
+    echo "adb install $apk_file ok!"
+}
+
+
+function install_droid_module()
+{
+    local theFile=$1
     if [ "X$theFile" = "X" ];then
         echo "maybe it's a compile error!"
         exit 100
@@ -75,25 +130,44 @@ function mmm_current_module_and_install()
         exit 100
     fi
 
-    if ! is_the_system_bin_file $theFile; then
-        echo "$theFile is not a system bin file!"
-        exit 100
+    if is_apk_file $theFile;then
+        install_droid_apk $theFile;
+        return 0
     fi
-        
-    if ! adb shell mount -t yaffs2 -o rw,remount mtd@system /system; then
+
+    local dstPushPath=$(get_push_path $theFile)
+    if [ "X$dstPushPath" = "X" ]; then
+        echo "It's not a file in system dir!"
+        exit 1
+    fi
+    
+    # if ! adb shell mount -t yaffs2 -o rw,remount mtd@system /system; then
+    #     echo "remount /system with RW failed!"
+    #     exit 100
+    # fi
+    
+    if ! adb remount; then
         echo "remount /system with RW failed!"
         exit 100
     fi
-        
-    if adb push $theFile /system/bin; then
-        echo "install: $theFile to '/system/bin' is ok!"
-        local run_cmd="adb shell /system/bin/`basename $theFile`"
-        echo "you can run this command:"
-        echo ""
-        echo "$run_cmd"
-        echo ""
-        echo ""
-    fi
+
+    if adb push $theFile $dstPushPath>/dev/null 2>&1; then
+#       printf "\n\nadb push $theFile $dstPushPath\nit's ok! \n\n"
+        if echo "$dstPushPath" | grep -qE '/system/bin/'; then
+            local run_cmd="adb shell /system/bin/`basename $theFile`"
+            echo "you want the cmd:"
+            printf "\n$run_cmd\n\n"
+        else
+            echo ""
+            echo ""
+            echo "[`basename $theFile`] has been pushed ok!"
+            echo ""
+            echo ""
+        fi
+    else
+        echo "Failed: adb push $theFile $dstPushPath"
+        exit 123
+    fi 
 }
 
 
@@ -116,7 +190,16 @@ function my_mmm()
         cd $(Gettop)/build
         source ./envsetup.sh
         cd -
-        mmm_current_module_and_install
+
+        if ! mmm . showcommands|grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt; then
+            echo "build error, pleas check it!"
+            exit 10
+        else
+            while read line
+            do
+                install_droid_module $line
+            done </tmp/EBuild.txt
+        fi
     else
         echo "Couldn't locate the top of the tree.  Try setting TOP."
     fi
