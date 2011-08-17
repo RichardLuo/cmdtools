@@ -14,10 +14,10 @@ use File::Basename;
 
 while (<>) {
     if (s/package\s*=\s*"(\w+\.\w+.*)"/$1/) {
-        print $1 . "\n";
+        print $1;
         exit 0;
     }
 }
-exit 100
+exit 100;
 
 
