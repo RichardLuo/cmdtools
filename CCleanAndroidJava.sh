@@ -5,7 +5,7 @@
 # 2008-11-11
 ################################################################
 
-rm -rf assets bin/ libs/ gen/ default.properties \
+rm -rf assets bin/ libs/ gen/ \
     local.properties build.xml cscope.* .class* \
     .projec* obj  proguard.cfg _index.html build.properties
 
