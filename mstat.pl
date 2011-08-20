@@ -1,10 +1,7 @@
 #!/usr/bin/perl -w
-
 use strict;
 use warnings;
 use diagnostics;
-
-
 
 #use Unix::Mknod qw(:all);
 use File::stat;
