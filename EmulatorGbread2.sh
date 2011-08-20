@@ -5,7 +5,7 @@
 # date: 2010/12/28 12:32:09
 ################################################################
 
-sysdir=/home/richard/Gbread2/out/target/product/generic
+sysdir=/home/richard/gbread/out/target/product/generic
 avd=Kitty03
 partition_size_M=256
 
