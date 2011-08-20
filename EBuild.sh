@@ -94,6 +94,30 @@ function is_apk_file()
     return 0
 }
 
+# $1: input file name
+function is_exe_or_so_file()
+{
+    local exe_so_file=$1
+
+    if [ ! -f $exe_so_file ]; then
+        echo "$exe_so_file doesn't exist!"
+        return 1
+    fi
+
+    if echo $exe_so_file | grep -qE "\.so$"; then
+        echo "$exe_so_file is a .so file!"
+        return 0
+    else
+        if [ -x $exe_so_file ]; then
+            echo "$exe_so_file is a executable file!"
+            return 0
+        fi
+    fi
+
+    echo "$exe_so_file is not a executable or so file"
+    return 1
+}
+
 # $1: the file need to be installed
 function install_droid_apk()
 {
@@ -115,24 +139,13 @@ function install_droid_apk()
     echo "adb install $apk_file ok!"
 }
 
-
-function install_droid_module()
+# $1: the file need to be installed
+function install_droid_exe_or_so_file()
 {
     local theFile=$1
-    if [ "X$theFile" = "X" ];then
-        echo "maybe it's a compile error!"
-        exit 100
-    fi
-
-    theFile=$TOP_DIR/$theFile
-    if [ ! -f $theFile ]; then
-        echo "the file $theFile doesn't exist!!"
-        exit 100
-    fi
-
-    if is_apk_file $theFile;then
-        install_droid_apk $theFile;
-        return 0
+    if [ "$1X" = "X" ]; then
+        echo "null input file!"
+        exit 99
     fi
 
     local dstPushPath=$(get_push_path $theFile)
@@ -140,11 +153,6 @@ function install_droid_module()
         echo "It's not a file in system dir!"
         exit 1
     fi
-    
-    # if ! adb shell mount -t yaffs2 -o rw,remount mtd@system /system; then
-    #     echo "remount /system with RW failed!"
-    #     exit 100
-    # fi
     
     if ! adb remount; then
         echo "remount /system with RW failed!"
@@ -168,6 +176,36 @@ function install_droid_module()
         echo "Failed: adb push $theFile $dstPushPath"
         exit 123
     fi 
+    return 0
+}
+
+
+function install_droid_module()
+{
+    local theFile=$1
+    if [ "X$theFile" = "X" ];then
+        echo "maybe it's a compile error!"
+        exit 100
+    fi
+
+    theFile=$TOP_DIR/$theFile
+    if [ ! -f $theFile ]; then
+        echo "the file $theFile doesn't exist!!"
+        exit 100
+    fi
+
+    if is_apk_file $theFile;then
+        install_droid_apk $theFile;
+        return 0
+    fi
+
+    if is_exe_or_so_file $theFile; then
+        install_droid_exe_or_so_file $theFile
+        return 0
+    fi
+
+    echo "UNKNOW file: $theFile"
+    exit 89
 }
 
 
