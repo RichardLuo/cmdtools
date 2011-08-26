@@ -85,7 +85,7 @@ function is_apk_file()
 {
     local apk_file=$1
     if ! echo $apk_file | grep -qE "apk$"; then
-        echo "$apk_file is not apk file!"
+#        echo "$apk_file is not apk file!"
         return 1
     fi
 
@@ -107,11 +107,11 @@ function is_exe_or_so_file()
     fi
 
     if echo $exe_so_file | grep -qE "\.so$"; then
-        echo "$exe_so_file is a .so file!"
+#        echo " `basename $exe_so_file` is a .so file!"
         return 0
     else
         if [ -x $exe_so_file ]; then
-            echo "$exe_so_file is a executable file!"
+#            echo "$exe_so_file is a executable file!"
             return 0
         fi
     fi
@@ -161,23 +161,16 @@ function install_droid_exe_or_so_file()
         fi
     fi
     
-    if ! adb remount; then
+    if ! adb remount 2>&1>/dev/null; then
         echo "remount /system with RW failed!"
         exit 100
     fi
 
     if adb push $theFile $dstPushPath>/dev/null 2>&1; then
-#       printf "\n\nadb push $theFile $dstPushPath\nit's ok! \n\n"
+        printf '[OK] %-40s ==> %-50s\n' "`basename $theFile`" "$dstPushPath"
         if echo "$dstPushPath" | grep -qE '/system/bin/'; then
             local run_cmd="adb shell /system/bin/`basename $theFile`"
-            echo "you want the cmd:"
-            printf "\n$run_cmd\n\n"
-        else
-            echo ""
-            echo ""
-            echo "[`basename $theFile`] has been pushed ok!"
-            echo ""
-            echo ""
+            printf "$run_cmd\n"
         fi
     else
         echo "Failed: adb push $theFile $dstPushPath"
@@ -236,10 +229,13 @@ function my_mmm()
         source ./envsetup.sh
         cd -
 
-        if ! mmm . showcommands|grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt; then
+        if ! mmm . showcommands | tee /tmp/BuildP1000.log; then
             echo "build error, pleas check it!"
             exit 10
         else
+            echo ""
+            echo ""
+            cat /tmp/BuildP1000.log | grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt
             while read line
             do
                 install_droid_module $line
@@ -248,6 +244,7 @@ function my_mmm()
     else
         echo "Couldn't locate the top of the tree.  Try setting TOP."
     fi
+
 }
 
 
