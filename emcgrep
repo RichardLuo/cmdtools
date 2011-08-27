@@ -5,83 +5,42 @@
 # date: 2011/08/27 08:16:28
 ################################################################
 
+source /home/richard/bin/common/my_cscope_common.sh
 
-# find -iregex '.*\.[techsxj]\(ava\|ex\|ty\|ml\|h\|l\|map\|lds\|p\|c\|x\|inl\)*$' -print0 | xargs -0e grep -nHE 
-# emcgrep -iregex '.*\.[techsxj]\(ava\|ex\|ty\|ml\|h\|l\|map\|lds\|p\|c\|x\|inl\)*$' -print0 | xargs -0e grep -nHE 
-
-exclude_file=.emcgrep
-
-if [ -f $exclude_file ];then
-    source $PWD/$exclude_file
+emcgrep_config=.emcgrep
+source ${HOME}/bin/common/$emcgrep_config
+if [ -f $emcgrep_config ];then
+    source $PWD/$emcgrep_config
 fi
 
-function gen_exclude_dirs()
-{
-    if [ "X$EXCLUDE_DIRS" = "X" ]; then
-        return 0
-    fi
+# uniq the suffixs
+SUFFIXS=`echo $SUFFIXS | tr " " "\n" | sort | uniq |tr "\n" " "`
 
-    local cmd=""
-    for d in $EXCLUDE_DIRS; do
-        d=`basename $d`
-        if [ "X$cmd" != "X" ]; then
-            cmd="$cmd -o -path './$d'"
-        else
-            cmd="-path './$d'"
-        fi
-    done
-    echo "$cmd"
-}
+if [ $# == 0 ]; then
+    echo "invalid input"
+    exit 1
+fi
 
-function gen_find_cmd()
-{
-    local result=""
-    local exclude_dirs=$(gen_exclude_dirs)
+while getopts ":af" opt; do
+    case $opt in
+        a)
+            echo "-a was triggered!" >&2
+            find_cmd=$(gen_find_cmd)
+            break
+            ;;
+        f)
+            find_cmd="find . -type f "
+            ;;
+        *)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+    esac
+done
 
-    if [ "X$exclude_dirs" != "X" ]; then
-        cmd_part_exclude="\\( \\( $exclude_dirs \\) -prune -type f \\)"
-        result="find . $cmd_part_exclude"
-    else
-        result="find . "
-    fi
 
-    local suffixs_cmds=""
-    if [ "X$suffixs_cmds" != "X" ]; then
-        cmd_part_suffix="\\( -type f \\( $suffixs_cmds \\) \\) "
-        if [ "X$result" != "X" ]; then
-            result="$result -o $cmd_part_suffix"
-        else
-            result="find . $cmd_part_suffix"
-        fi
-    fi
-
-    local filenames_cmds=""
-    if [ "X$filenames_cmds" != "X" ]; then
-        cmd_part_names="\\( -type f \\( $filenames_cmds \\) \\) "
-        if [ "X$result" != "X" ]; then
-            result="$result -o $cmd_part_names"
-        else
-            result="find . $cmd_part_names"
-        fi
-    fi
-
-    # echo "res: $result"
-    # exit 100
-
-    if [ "X$result" != "X" ]; then
-        echo $result
-    else
-        echo "can not generate the find command"
-        exit 100
-    fi
-}
-
-# gen_exclude_dirs
-# echo "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH"
-
-find_cmd=$(gen_find_cmd)
-
-echo $find_cmd " -o \( $1 '$2' $3 \) " > /tmp/emcgrep.cmd
+# echo $find_cmd " -o \( -print0 \) " > /tmp/emcgrep.cmd
+echo $find_cmd " -print0 " > /tmp/emcgrep.cmd
 
 # cat /tmp/emcgrep.cmd
 # echo ""
@@ -90,6 +49,8 @@ echo $find_cmd " -o \( $1 '$2' $3 \) " > /tmp/emcgrep.cmd
 # echo ""
 # echo ""
 
+cat /tmp/emcgrep.cmd >&2
+echo "================================================================" >&2
 sh /tmp/emcgrep.cmd
 
 # echo "\$@:$@"
