@@ -47,7 +47,10 @@ function gen_exclude_dirs()
 
     local cmd=""
     for d in $EXCLUDE_DIRS; do
-        d=`basename $d`
+#        d=`basename $d`
+#        d=`realpath $d`
+        d=`echo $d | perl -pe 's/[^\w]*(.*\w+)[^\w]*/$1/'`
+#        echo "d:$d" >&2 && exit 9 
         if [ "X$cmd" != "X" ]; then
             cmd="$cmd -o -path './$d'"
         else
@@ -102,6 +105,7 @@ function gen_find_cmd()
     local result=""
     local exclude_dirs=$(gen_exclude_dirs)
 
+    echo "exclude_dirs: $exclude_dirs" >&2
     if [ "X$exclude_dirs" != "X" ]; then
         cmd_part_exclude="\\( \\( $exclude_dirs \\) -prune -type f \\)"
         result="$cmd_part_exclude"
@@ -112,6 +116,8 @@ function gen_find_cmd()
         cmd_part_suffix="\\( -type f \\( $suffixs_cmds \\) \\) "
         if [ "X$result" != "X" ]; then
             result="$result -o $cmd_part_suffix"
+        else
+            result="$cmd_part_suffix"
         fi
     fi
 
@@ -120,13 +126,20 @@ function gen_find_cmd()
         cmd_part_names="\\( -type f \\( $filenames_cmds \\) \\) "
         if [ "X$result" != "X" ]; then
             result="$result -o $cmd_part_names"
+        else
+            result="$cmd_part_names"
         fi
     fi
 
-    # echo "res: $result"
-    # exit 100
+    result="find . "$result
 
-    echo "find . " $result
+    if [ -f .cscope_grep.sh ]; then
+        local grep_cmd=`cat .cscope_grep.sh`
+        result=$result" | "$grep_cmd
+    fi
+    # echo $result >&2
+    # exit 9
+    echo $result
 }
 
 function gen_file_list()
