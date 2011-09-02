@@ -15,28 +15,24 @@ fi
 
 # uniq the suffixs
 SUFFIXS=`echo $SUFFIXS | tr " " "\n" | sort | uniq |tr "\n" " "`
+# echo "SUFFIXS:$SUFFIXS"
 
 cmd_name=`basename $0`
 if [ $cmd_name = "emcgrep" ]; then
-    find_cmd=$(gen_find_cmd)
-    # while getopts ":af" opt; do
-    #     case $opt in
-    #         a)
-    #             echo "-a was triggered!" >&2
-    #             find_cmd=$(gen_find_cmd)
-    #             break
-    #             ;;
-    #         f)
-    #             find_cmd="find . -type f "
-    #             ;;
-    #         *)
-    #             echo "Invalid option: -$OPTARG" >&2
-    #             exit 1
-    #             ;;
-    #     esac
-    # done
+    if [ $# == 0 ]; then
+        find_cmd=$(gen_find_cmd)
+    else
+        if [ $1 = "-name" ]; then
+            find_cmd="find . -name '$2'"
+        fi
+    fi
 else
     find_cmd="find . -type f "
+fi
+
+if [ "${find_cmd}X" = "X" ]; then
+    echo "Unknown command!">&2
+    exit 9
 fi
 
 
