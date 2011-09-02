@@ -154,7 +154,16 @@ then
     echo "Indexing files ..."
 fi
 
-cscope -b -i $LIST_FILE -f $DATABASE_FILE
+function do_indexing()
+{
+    if is_in_android_platform; then
+        cscope -k -b -i $LIST_FILE -f $DATABASE_FILE
+    else
+        cscope -b -i $LIST_FILE -f $DATABASE_FILE
+    fi
+}
+
+do_indexing
 
 if [ "X$VERBOSE" != "X" ]
 then

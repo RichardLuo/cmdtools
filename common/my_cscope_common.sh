@@ -105,7 +105,7 @@ function gen_find_cmd()
     local result=""
     local exclude_dirs=$(gen_exclude_dirs)
 
-    echo "exclude_dirs: $exclude_dirs" >&2
+#    echo "exclude_dirs: $exclude_dirs" >&2
     if [ "X$exclude_dirs" != "X" ]; then
         cmd_part_exclude="\\( \\( $exclude_dirs \\) -prune -type f \\)"
         result="$cmd_part_exclude"
@@ -154,4 +154,26 @@ function gen_file_list()
 
     echo "generating the list file..."
     bash $tmp_sh>cscope.files
+}
+
+
+function is_in_android_platform()
+{
+    local TOPFILE=build/core/envsetup.mk
+    if [ -f "$TOP/$TOPFILE" ] ; then
+        return 0
+    fi
+
+    T=
+    local HERE=$PWD
+    while [ \( ! \( -f $TOPFILE \) \) -a \( $PWD != "/" \) ]; do
+        cd .. > /dev/null
+        T=$PWD
+    done
+    cd $HERE > /dev/null
+    if [ -f "$T/$TOPFILE" ]; then
+        return 0
+    fi
+
+    return 1
 }
