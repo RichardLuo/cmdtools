@@ -90,7 +90,8 @@ sub compare_files
             my $dst_file = $d_dir.$common_path;
 #            print "dst_file:$dst_file \n";
             chomp $dst_file;
-            die  "err!!!!" unless ( -e $_ );
+
+##            die  "$_ err!!!!" unless ( -e $_ );
 
             if (-e $dst_file) {
                 my $params = "$_ $dst_file";
@@ -99,9 +100,11 @@ sub compare_files
                 my $diff_res = $sh->diff("-q $_ $dst_file");
                 if ($diff_res) {
                     push(@diff_results, $diff_res);
+                    print "$diff_res"
                 }
             } else {
                 push(@file_existing_results, "$dst_file does not exist! \n");
+                print "$dst_file does not exist! \n";
             }
 #            print "common_path:{$common_path} \n";
             delete_entry(\@$d_files, $d_dir, $common_path);
@@ -113,9 +116,17 @@ sub compare_files
 compare_files(\@src_files, \@dst_files, $source_dir, $dest_dir);
 compare_files(\@dst_files, \@src_files, $dest_dir, $source_dir);
 
-foreach(@diff_results, @file_existing_results) {
+print "\n\n================================================================\n\n";
+foreach(@file_existing_results) {
 	print;
 }
+
+print "\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+foreach(@diff_results) {
+	print;
+}
+
+
 
 # print "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh \n";
 # foreach(@dst_files) {
