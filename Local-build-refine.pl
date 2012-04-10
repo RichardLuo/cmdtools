@@ -22,12 +22,12 @@ sub print_array {
 ################
 # to check whether the code has 'main' func definition.
 ################################################################
-sub file_has_main_func_definition {
+sub has_main_entry {
   my $file = shift;
   chomp $file;
   my $contents = join('', $sh->cat("$file")); # there should be a better way to do this.
-#  print $contents;
-  if ($contents =~ /\n^\s*(\bint\b|\bvoid\b|)\s*(main|ACE_TMAIN)\s*\(.*?\)/m) {
+  print $contents;
+  if ($contents =~ /^\s*(\bint\b|\bvoid\b|)\s*(main|ACE_TMAIN)\s*\(.*?\)/m) {
       print "Note: $file have main func definition \n";
       return 1;
   }
@@ -93,7 +93,7 @@ my @common_src_files;                   # list of source files that should be mo
 foreach (@src_files, @head_files) {
   my $dst_dir = m[\.cp{0,2}$] ? "$src_dir" : "$inc_dir";
   my $cmd = generate_commands($_, $dst_dir);
-  if (!file_has_main_func_definition($_)) {
+  if (!has_main_entry($_)) {
       push @commands, $cmd;
       push @common_src_files, $_;
   }
@@ -104,32 +104,34 @@ foreach (@src_files, @head_files) {
 
 my $examp_mk = 'example.mk';
 
-if (-f "Makefile") {
-    my $prefix = $sh->date(" +%Y%m%d_%S");
-    chop $prefix;
-    push @commands, "mv Makefile org.$prefix.mk";
-}
+# if (-f "Makefile") {
+#     my $prefix = $sh->date(" +%Y%m%d_%S");
+#     chop $prefix;
+#     push @commands, "mv Makefile org.$prefix.mk";
+# }
 
 splice @commands, 0, 0, "mkdir -p $inc_dir" unless @head_files <= 0;
 splice @commands, 0, 0, "mkdir -p $src_dir" unless @common_src_files <= 0;
 
 ## push @commands, "cp $ENV{HOMESYS_ROOT}/kkbuild/$examp_mk ./Makefile";
 
-print "\n";
-print "================ I will do executing the following commands ================" . "\n";
-print_array @commands;
-print "============================================================================" . "\n";
-print "\n";
-
+if (@commands > 0) {
+    print "\n";
+    print "================ I will do executing the following commands ================" . "\n";
+    print_array @commands;
+    print "============================================================================" . "\n";
+    print "\n";
+    exec_commands @commands;
+}
+else {
+    print "no command to execute \n";
+}
 
 #assert_svn_uptodate;
-
-$sh->mkdir("-p $src_dir") unless @src_files <= 0;
-$sh->mkdir("-p $inc_dir") unless @head_files <= 0;
-
+# $sh->mkdir("-p $src_dir") unless @src_files <= 0;
+# $sh->mkdir("-p $inc_dir") unless @head_files <= 0;
 # $sh->svn("add  $src_dir $inc_dir $lib_dir") || die "lyk svn add error!!!";
 
-exec_commands @commands;
 print
     "################################################################" . "\n",
     "building sys conversion ok, please modify the generated example"  . "\n",
@@ -195,41 +197,111 @@ foreach (@src_files) {
 }
 $code_type = $code_type . $code_type_var;
 
-my $example_makefile = "$ENV{HOMESYS_ROOT}/kkbuild/example.mk";
+my $sample_makefile = "$ENV{HOMESYS_ROOT}/kkbuild/example.mk";
 my @makefile_lines;
+my $orig_makefile = "";
 
-open(INFile, "< $example_makefile") or die "can not open $example_makefile";
+my $lmk_exename = "";
+my $lmk_libname = "";
 
-################################################################
-# start to parsing the LIBNAME
-################
-my $lib_module_name = "LIBNAME := ";
-if ($exe_name_str eq $exe_name_prefix) {
-    my $name_l = basename $ENV{PWD};
-    my $name_h = basename(dirname $ENV{PWD});
-    if ($name_h eq "/") {               # the case like '/test', just under the root dir
-        $lib_module_name .= "lib" . $name_l . ".a";
-    } 
-    else {
-#        print "name_l:$name_l, name_h:$name_h \n\n" ;
-        $lib_module_name .= "lib" . $name_h . "_" . $name_l . ".a";
+sub check_local_makefile {
+    open(LMKFile, "< Makefile") or die "can not open local Makefile";
+
+    while (<LMKFile>) {
+        if ($_ =~ /^\s*#/) {
+            next;
+        }
+        if ($_ =~ /^\s*EXENAME\s*:?=\s*\w+/) {
+            print "got EXENAME:$_ \n";
+            $lmk_exename = $_;
+            last;
+        }
+        if ($_ =~ /^\s*LIBNAME\s*:?=\s*\w+/) {
+            print "got LIBNAME:$_ \n";
+            $lmk_libname = $_;
+            last;
+        }
     }
-    print "$lib_module_name \n";
-    push @makefile_lines, $lib_module_name;
-} 
-else {
-    push @makefile_lines, $exe_name_str
+    close(LMKFile);
+    if ($lmk_exename eq "" && $lmk_libname eq "") {
+        print "exename and libname are both empty \n";
+        return 0;
+    }
+    return 1;
 }
 
-push @makefile_lines, $code_type;
 
-for( ; <INFile>; ) {
+if (-f "Makefile") {
+    if (check_local_makefile()) {
+        $orig_makefile = "Makefile";
+    } else {
+        $orig_makefile = $sample_makefile;
+    }
+}
+
+open(INFile, "< $orig_makefile") or die "can not open $orig_makefile";
+my $using_parsed_exename = 0;
+if ($orig_makefile ne "Makefile") {
+    ################################################################
+    # start to parsing the LIBNAME
+    ################
+    my $lib_module_name_prefix = "LIBNAME := ";
+    my $lib_module_name = $lib_module_name_prefix;
+    if ($exe_name_str eq $exe_name_prefix) { # only if the exe_name_str is not ok, we use LIBNAME
+        my $name_l = basename $ENV{PWD};
+        my $name_h = basename(dirname $ENV{PWD});
+        if ($name_h eq "/") {               # the case like '/test', just under the root dir
+            $lib_module_name .= "lib" . $name_l . ".a";
+        } 
+        else {
+#        print "name_l:$name_l, name_h:$name_h \n\n" ;
+            $lib_module_name .= "lib" . $name_h . "_" . $name_l . ".a";
+        }
+        print "$lib_module_name \n";
+        push @makefile_lines, $lib_module_name;
+    } 
+    else {                              
+        $using_parsed_exename = 1;
+    }
+    push @makefile_lines, $code_type;
+}
+else {                                  # local Makefile is already exists
+    if ($exe_name_str ne $exe_name_prefix) { 
+        $using_parsed_exename = 1;
+    }
+}
+
+if ($using_parsed_exename == 0) {
+    close(INFile);
+    print "nothing to do, exit 0\n";
+    exit(0);
+}
+
+my $do_nothing = 0;
+while (<INFile>) {
     chomp;
+    if ($_ =~ /\s*EXENAME\s*:?=\s*\w+/) {
+        if ($_ eq $exe_name_str) {
+            $do_nothing = 1;
+            last;
+        }
+        next;
+    }
     push @makefile_lines, $_;
 }
 close INFile;
 
+if ($do_nothing == 1) {
+    print "nothing to do here \n";
+    exit(0);
+}
+
 open(OUTFILE, ">Makefile") || die("Cannot open Makefile files\n");
+
+if ($using_parsed_exename) {
+    print OUTFILE "$exe_name_str\n";
+}
+
 foreach (@makefile_lines) {
     print OUTFILE "$_\n";
 }
