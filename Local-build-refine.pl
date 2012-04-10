@@ -137,7 +137,9 @@ print
     "################################################################" . "\n";
 print "\n";
 
+################################################################
 # parse @main_entry_files to get the 'EXENAME'
+################
 my $exe_name_prefix = "EXENAME =";
 my $exe_name_str = $exe_name_prefix;
 if (@main_entry_files > 0) {
@@ -155,7 +157,9 @@ if (@main_entry_files > 0) {
     }
 }
 
-
+################################################################
+# start to parsing the CODE_TYPE
+################
 my $code_type = "CODE_TYPE := ";
 my $code_type_var = "";
 foreach (@src_files) {
@@ -196,6 +200,9 @@ my @makefile_lines;
 
 open(INFile, "< $example_makefile") or die "can not open $example_makefile";
 
+################################################################
+# start to parsing the LIBNAME
+################
 my $lib_module_name = "LIBNAME := ";
 if ($exe_name_str eq $exe_name_prefix) {
     my $name_l = basename $ENV{PWD};
