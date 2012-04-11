@@ -121,6 +121,20 @@ sub backup_local_makefile {
   }
 }
 
+# generate a local module name from the module path
+sub get_base_local_module_name {
+  my ($path) = @_;
+  my $name_l = basename($path) if defined($path);
+  my $name_h = basename(dirname($path)) if defined($path);
+  if ($name_h eq "/") { # the case like '/test', just under the root dir
+    return $name_l;
+  }
+  else {
+    return $name_h . "_" . $name_l;
+  }
+}
+
+
 my $src_dir = "src";
 my $inc_dir = "include";
 
@@ -150,7 +164,6 @@ foreach (@src_files, @head_files) {
 
 splice @commands, 0, 0, "mkdir -p $inc_dir" unless @head_files <= 0;
 splice @commands, 0, 0, "mkdir -p $src_dir" unless @common_src_files <= 0;
-
 
 # assert_svn_uptodate;
 # $sh->mkdir("-p $src_dir") unless @src_files <= 0;
@@ -265,6 +278,7 @@ if (-f "Makefile" && check_local_makefile()) {
   $using_local_makefile = 1;
 }
 
+
 my @makefile_lines;
 my $using_parsed_exename = 0;
 my $makefile_code = "";
@@ -273,20 +287,8 @@ if (!$using_local_makefile) {
   ################################################################
   # start to parsing the LIBNAME
   ################
-  my $lib_module_name_prefix = "LIBNAME := ";
-  my $lib_module_name = $lib_module_name_prefix;
   if ($exe_name_str eq $exe_name_prefix) { # only if the exe_name_str is not ok, we use LIBNAME
-    my $name_l = basename $ENV{PWD};
-    my $name_h = basename(dirname $ENV{PWD});
-    if ($name_h eq "/") { # the case like '/test', just under the root dir
-      $lib_module_name .= "lib" . $name_l . ".a";
-    }
-    else {
-      #        print "name_l:$name_l, name_h:$name_h \n\n" ;
-      $lib_module_name .= "lib" . $name_h . "_" . $name_l . ".a";
-    }
-    print "$lib_module_name \n";
-    $makefile_code .= "$lib_module_name\n";
+    $makefile_code .= "LIBNAME := lib" . get_base_local_module_name($ENV{PWD}) . ".a";
   }
   else {
     $makefile_code .= "$exe_name_str\n";
@@ -295,7 +297,7 @@ if (!$using_local_makefile) {
 }
 else {                        # local Makefile is already exists
   if ($exe_name_str eq $exe_name_prefix) {
-    print "using local Makefile but contains no executable target, so exit here!";
+    print "using local Makefile but contains no executable target, so exit here!\n";
     do_nothing_exit;
   }
   open(INFile, "< Makefile") or die "can not open Makefile";
