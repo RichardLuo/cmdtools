@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use diagnostics;
 use File::Basename;
-use File::Copy;
 use XBuild::Utils;
 
 use Shell qw(cp cat ls find diff mkdir svn date rm);
@@ -41,14 +40,12 @@ my $sh = Shell->new;
 
 
 ################
-# generate_commands($src_file, $dst_file);
+# generate_move_file_command($src_file, $dst_file);
 # return: command string.
 ################################################################
-sub generate_commands {
-  my $srcfile = shift;
-  my $dstdir = shift;
-  my $cmd_prefix = sprintf("mv %18s%18s", $srcfile, $dstdir);
-  return $cmd_prefix;
+sub generate_move_file_command {
+  my ($src_file, $dst_dir) = @_;
+  return sprintf("mv %18s%18s", $src_file, $dst_dir);
 }
 
 # ################
@@ -62,43 +59,6 @@ sub generate_commands {
 #     die "snv is not up to date please do check!";
 #   }
 # }
-
-################
-# exec_commands(@command_array);
-################################################################
-sub exec_commands {
-  foreach (@_) {
-    system($_) == 0 || die "system($_) failed!!";
-  }
-}
-
-sub do_nothing_exit {
-  print "nothing to do, exit 0\n";
-  exit(0);
-}
-
-sub backup_local_makefile {
-  if (-f "Makefile") {
-    my $backup_name = $sh->date(" +%Y%m%d_%S");
-    chop $backup_name;
-    $backup_name = "org." . $backup_name . ".mk";
-    copy("Makefile","$backup_name") or die "Copy failed: $!";
-    print "backup old Makefile to $backup_name \n";
-  }
-}
-
-# generate a local module name from the module path
-sub get_base_local_module_name {
-  my ($path) = @_;
-  my $name_l = basename($path) if defined($path);
-  my $name_h = basename(dirname($path)) if defined($path);
-  if ($name_h eq "/") { # the case like '/test', just under the root dir
-    return $name_l;
-  }
-  else {
-    return $name_h . "_" . $name_l;
-  }
-}
 
 
 my $src_dir = "src";
@@ -119,7 +79,7 @@ my @common_src_files; # list of source files that should be moved to ./src
 
 foreach (@src_files, @head_files) {
   my $dst_dir = m[\.cp{0,2}$] ? "$src_dir" : "$inc_dir";
-  my $cmd = generate_commands($_, $dst_dir);
+  my $cmd = generate_move_file_command($_, $dst_dir);
   if (!Utils::has_main_entry($_)) {
     push @commands, $cmd;
     push @common_src_files, $_;
@@ -128,8 +88,8 @@ foreach (@src_files, @head_files) {
   }
 }
 
-splice @commands, 0, 0, "mkdir -p $inc_dir" unless @head_files <= 0;
-splice @commands, 0, 0, "mkdir -p $src_dir" unless @common_src_files <= 0;
+splice @commands, 0, 0, "mkdir $inc_dir" unless (@head_files <= 0) || (-d $inc_dir);
+splice @commands, 0, 0, "mkdir $src_dir" unless (@common_src_files <= 0) || (-d $src_dir);
 
 # assert_svn_uptodate;
 # $sh->mkdir("-p $src_dir") unless @src_files <= 0;
@@ -198,7 +158,7 @@ if (@commands > 0) {
   Utils::print_array @commands;
   print "============================================================================" . "\n";
   print "\n";
-  exec_commands @commands;
+  Utils::exec_commands @commands;
 } else {
   print "Note: No command to execute \n";
 }
@@ -254,7 +214,7 @@ if (!$using_local_makefile) {
   # start to parsing the LIBNAME
   ################
   if ($exe_name_str eq $exe_name_prefix) { # only if the exe_name_str is not ok, we use LIBNAME
-    $makefile_code .= "LIBNAME := lib" . get_base_local_module_name($ENV{PWD}) . ".a";
+    $makefile_code .= "LIBNAME := lib" . Utils::get_base_local_module_name($ENV{PWD}) . ".a";
   }
   else {
     $makefile_code .= "$exe_name_str\n";
@@ -264,7 +224,7 @@ if (!$using_local_makefile) {
 else {                        # local Makefile is already exists
   if ($exe_name_str eq $exe_name_prefix) {
     print "using local Makefile but contains no executable target, so exit here!\n";
-    do_nothing_exit;
+    Utils::do_nothing_exit;
   }
   open(INFile, "< Makefile") or die "can not open Makefile";
   my $lmk_contain_exename = 0;
@@ -296,9 +256,9 @@ else {                        # local Makefile is already exists
 }
 
 # print "do_nothing:$do_nothing \n";
-do_nothing_exit unless $do_nothing == 0;
+Utils::do_nothing_exit unless $do_nothing == 0;
 
-backup_local_makefile();
+Utils::backup_file("Makefile");
 
 open(OUTFILE, ">Makefile") || die("Cannot open Makefile files\n");
 if ($makefile_code ne "") {
