@@ -10,8 +10,8 @@ sub has_main_entry;
 # for debug array.
 ################################################################
 sub print_array {
-  foreach (@_) {
-    print $_, "\n";
+  foreach my $i (@_) {
+    print $i, "\n";
   }
 }
 
@@ -20,15 +20,19 @@ sub print_array {
 # $1: local source file name
 ################################################################
 sub has_main_entry {
-  my $file = shift;
-  chomp $file;
-  open(FILE, "< $file") or die "can not open local $file";
-  my $contents = <FILE>;
-  if (defined($contents) && $contents =~ /^\s*(\bint\b|\bvoid\b|)\s*(main|ACE_TMAIN)\s*\(.*?\)/m) {
-    print "Note: $file have main func definition \n";
-    return 1;
+  my ($file) = @_;
+  my $result = 0;
+
+  open(InFile, "< $file") or die "can not open local $file";
+  while (<InFile>) {
+    if (/^\s*(\bint\b|\bvoid\b|)\s*(main|ACE_TMAIN)\s*\(.*?\)/) {
+      print "Note: $file have main func definition \n";
+      $result = 1;
+      last;
+    }
   }
-  return 0;
+  close InFile;
+  return $result;
 }
 
 
@@ -49,8 +53,8 @@ sub get_base_local_module_name {
 # exec_commands(@command_array);
 ################################################################
 sub exec_commands {
-  foreach (@_) {
-    system($_) == 0 || die "system($_) failed!!";
+  foreach my $i (@_) {
+    system($i) == 0 || die "system($i) failed!!";
   }
 }
 
