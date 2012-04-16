@@ -5,12 +5,14 @@ use strict;
 use diagnostics;
 use XBuild::Utils;
 use File::Basename;
+use XBuild::XBuildModuleInfo;
 
 #constructor
 sub new {
-  my ($class) = @_;
-  my $self = 
+  my $class = shift;
+  my $self =
     {
+     module_info_       => undef,
      module_path_       => undef,
      source_files_      => undef,
      lib_source_files_  => undef,
@@ -21,18 +23,25 @@ sub new {
      commands_          => undef,
      source_directory_  => undef,
      header_directory_  => undef,
+     gen_makefile_      => undef,
     };
 
   bless $self, $class;
   return $self;
 }
 
-our($module_path_, @source_files_, @header_files_, @commands_, @lib_source_files_,
+our($module_path_, @source_files_, @header_files_, @commands_, @lib_source_files_, $gen_makefile_,
     @main_entry_files_, @_unit_test_files, $source_directory_, $header_directory_, @test_entry_files_, @app_entry_files_,
    );
 
 
-sub classifymain_entry_files_ {
+sub set_module_info {
+  my ($self, $mi) = @_;
+  $self->{'module_info_'} = $mi if defined $mi;
+}
+
+sub classify_main_entry_files {
+  my ($self) = shift;
   if (@main_entry_files_ <= 0) {
     print "there is no main entry file \n";
     return;
@@ -48,6 +57,7 @@ sub classifymain_entry_files_ {
     }
     else {
       push @app_entry_files_, $f;
+      $self->{'module_info_'}->append_exename($filename);
     }
   }
 }
@@ -63,12 +73,12 @@ sub parse_all_files {
       push @main_entry_files_, $file;
     } else {
       push @lib_source_files_, $file;
-      push @commands_, $cmd;
+      # push @commands_, $cmd;
     }
   }
 
-  splice @commands_, 0, 0, "mkdir $header_directory_" unless (@header_files_ <= 0) || (-d $header_directory_);
-  splice @commands_, 0, 0, "mkdir $source_directory_" unless defined(@lib_source_files_) || (-d $source_directory_);
+  # splice @commands_, 0, 0, "mkdir $header_directory_" unless (@header_files_ <= 0) || (-d $header_directory_);
+  # splice @commands_, 0, 0, "mkdir $source_directory_" unless defined(@lib_source_files_) || (-d $source_directory_);
 
   # print "~~~~~~~~~~~~~~~~ commands: \n";
   # Utils::print_array @commands_;
@@ -86,11 +96,67 @@ sub parse {
   print "header_directory_:\t$header_directory_ \n";
 
   $module_path_ = $path if defined($path);
-  print "module_path_:$module_path_ \n";
-
   $self->parse_all_files;
-  $self->classifymain_entry_files_;
+  $self->classify_main_entry_files;
+  my $libname = "lib" . Utils::get_base_local_module_name($path) . ".a";
+  $self->{'module_info_'}->set_libname($libname);
 
+  my $lmk_module = new XBuildModuleInfo();
+  my $lmk_file = "$path/Makefile";
+  $gen_makefile_ = 1;
+  if (-f $lmk_file) {
+    if ($lmk_module->parse_makefile($lmk_file) ) {
+      if ($lmk_module->get_exename() ne "" &&
+          $lmk_module->get_exename() eq $self->{'module_info_'}->get_exename() ) {
+        print "lmk's exename already exist and equal to module_info_'s exename,\nit doesn't need to re-generate the local Makefile \n";
+        printf "module_info_->get_exename:%s\n",$self->{'module_info_'}->get_exename();
+        $gen_makefile_ = 0;
+      } else {
+        print "lmk's exename not equal to module_info_'s, need to generate the $lmk_file \n";
+        printf "H: module_info_->get_exename:[%s]\n", $self->{'module_info_'}->get_exename();
+      }
+
+      if ($lmk_module->get_libname() ne "") {
+          if ($lmk_module->get_exename() eq "") {
+            print "lmk's libname already exists, and module_info_'s exename is empty,\nso it doesn't need to re-generate the local Makefile \n";
+            $gen_makefile_ = 0;
+          }
+          else {
+            $self->{'module_info_'}->set_libname($lmk_module->get_libname());
+          }
+      }
+    }
+  }
+  return $gen_makefile_;
+}
+
+sub execute_gen_xbuild_makefile {
+  my ($self) = @_;
+
+  if (defined(@header_files_) && @header_files_ > 0) {
+    mkdir $header_directory_;
+    foreach my $h (@header_files_) {
+      move($h, $header_directory_);
+    }
+  }
+
+  if (defined(@source_files_) && @source_files_ > 0) {
+    mkdir $source_directory_;
+    foreach my $s (@source_files_) {
+      move($s, $source_directory_);
+    }
+  }
+
+  my $local_mkfile = $module_path_ . "/Makefile";
+  if ($gen_makefile_ == 1) {
+    if ( -f $local_mkfile) {
+      Utils::backup_file("$ENV{PWD}/Makefile");
+    }
+    $self->{'module_info_'}->gen_xbuild_makefile($local_mkfile);
+  }
+  else {
+    print "Doesn't need to genereate the $local_mkfile \n";
+  }
 }
 
 sub set_directories {
@@ -119,17 +185,34 @@ sub set_header_files {
   }
 }
 
+sub app_entry_files {
+  my ($self) = @_;
+  return @app_entry_files_;
+}
+
+sub test_entry_files {
+  my ($self) = @_;
+  return @test_entry_files_;
+}
+
+sub lib_source_files {
+  my ($self) = @_;
+  return @lib_source_files_;
+}
+
 
 sub dprint {
   my ($self) = @_;
 
-#  Utils::print_array @source_files_;
-  print "src files:\t@source_files_ \n" if  @source_files_ > 0;
-  print "hdr files:\t@header_files_ \n" if @header_files_ > 0;
-  print "test_entry_files_:\t@test_entry_files_ \n" if @test_entry_files_ > 0;
-  print "main_entry_files_:\t@main_entry_files_ \n" if @main_entry_files_ > 0;
-  print "app_entry_files_:\t@app_entry_files_ \n" if @app_entry_files_ > 0;
-  print "lib_source_files_:\t@lib_source_files_ \n";
+#   print "source files:\t@source_files_ \n" if  @source_files_ > 0;
+#   print "header files:\t@header_files_ \n" if @header_files_ > 0;
+#   print "unit test files:\t@test_entry_files_ \n" if @test_entry_files_ > 0;
+#   print "main entry files:\t@main_entry_files_ \n" if @main_entry_files_ > 0;
+#   print "app entry files:\t@app_entry_files_ \n" if @app_entry_files_ > 0;
+#   print "lib source files:\t@lib_source_files_ \n";
+#   print "commands to execute:\n";
+#   Utils::print_array @commands_;
+
 }
 
 

@@ -2,6 +2,7 @@ package Utils;
 
 use strict;
 use File::Copy;
+use File::Basename;
 
 sub print_array;
 sub has_main_entry;
@@ -39,6 +40,8 @@ sub has_main_entry {
 # generate a local module name from the module path
 sub get_base_local_module_name {
   my ($path) = @_;
+#  $path =~ s/\/\///g;
+#  print "path: $path \n\n";
   my $name_l = basename($path) if defined($path);
   my $name_h = basename(dirname($path)) if defined($path);
   if ($name_h eq "/") { # the case like '/test', just under the root dir
@@ -68,8 +71,8 @@ sub backup_file {
   if (defined($file) && -f "$file") {
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
       localtime();
-    my $backup_name = sprintf("old.%s.%02d%02d%02d%02d%02d", $file, $mon+1, $mday, $hour, $min, $sec);
-    copy("$file","$backup_name") or die "Copy failed: $!";
+    my $backup_name = sprintf("%s.old.%02d%02d%02d%02d%02d", $file, $mon+1, $mday, $hour, $min, $sec);
+    copy("$file","$backup_name") or die "Copy failed: $@";
     print "[Backup]: $file --> $backup_name \n";
   }
 }
