@@ -20,7 +20,7 @@ SUFFIXS=`echo $SUFFIXS | tr " " "\n" | sort | uniq |tr "\n" " "`
 cmd_name=`basename $0`
 if [ $cmd_name = "emcgrep" ]; then
     if [ $# == 0 ]; then
-        find_cmd=$(gen_find_cmd)
+        find_cmd=$(gen_find_cmd_4emcgrep)
     else
         if [ $1 = "-name" ]; then
             find_cmd="find . -name '$2'"
