@@ -142,6 +142,47 @@ function gen_find_cmd()
     echo $result
 }
 
+function gen_find_cmd_4emcgrep()
+{
+    local result=""
+    local exclude_dirs=$(gen_exclude_dirs)
+
+#    echo "exclude_dirs: $exclude_dirs" >&2
+    if [ "X$exclude_dirs" != "X" ]; then
+        cmd_part_exclude="\\( \\( $exclude_dirs \\) -prune -type f \\)"
+        result="$cmd_part_exclude"
+    fi
+
+    local suffixs_cmds=$(gen_suffixs)
+    if [ "X$suffixs_cmds" != "X" ]; then
+        cmd_part_suffix="\\( -type f \\( $suffixs_cmds \\) \\) "
+        if [ "X$result" != "X" ]; then
+            result="$result -o $cmd_part_suffix"
+        else
+            result="$cmd_part_suffix"
+        fi
+    fi
+
+    local filenames_cmds=$(gen_filenames)
+    if [ "X$filenames_cmds" != "X" ]; then
+        cmd_part_names="\\( -type f \\( $filenames_cmds \\) \\) "
+        if [ "X$result" != "X" ]; then
+            result="$result -o $cmd_part_names"
+        else
+            result="$cmd_part_names"
+        fi
+    fi
+
+    result="find . "$result
+
+    # echo $result >&2
+    # exit 9
+    echo $result
+}
+
+
+
+
 function gen_file_list()
 {
     local fcmd=$(gen_find_cmd)
