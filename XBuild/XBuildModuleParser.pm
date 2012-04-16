@@ -4,6 +4,7 @@ package XBuildModuleParser;
 use strict;
 use diagnostics;
 use XBuild::Utils;
+use File::Copy;
 use File::Basename;
 use XBuild::XBuildModuleInfo;
 
@@ -20,7 +21,6 @@ sub new {
      main_entry_files_  => undef,
      test_entry_files_  => undef,
      app_entry_files_   => undef,
-     commands_          => undef,
      source_directory_  => undef,
      header_directory_  => undef,
      gen_makefile_      => undef,
@@ -30,7 +30,7 @@ sub new {
   return $self;
 }
 
-our($module_path_, @source_files_, @header_files_, @commands_, @lib_source_files_, $gen_makefile_,
+our($module_path_, @source_files_, @header_files_, @lib_source_files_, $gen_makefile_,
     @main_entry_files_, @_unit_test_files, $source_directory_, $header_directory_, @test_entry_files_, @app_entry_files_,
    );
 
@@ -66,26 +66,15 @@ sub classify_main_entry_files {
 sub parse_all_files {
   my ($self) = @_;
 
-  foreach my $file (@source_files_, @header_files_) {
+  foreach my $file (@source_files_) {
     my $dst_dir = ($file =~ /\.cp{0,2}$/) ? $source_directory_ : $header_directory_;
     my $cmd = sprintf("mv %18s%18s", $file, $dst_dir);
     if (Utils::has_main_entry($file)) {
       push @main_entry_files_, $file;
     } else {
       push @lib_source_files_, $file;
-      # push @commands_, $cmd;
     }
   }
-
-  # splice @commands_, 0, 0, "mkdir $header_directory_" unless (@header_files_ <= 0) || (-d $header_directory_);
-  # splice @commands_, 0, 0, "mkdir $source_directory_" unless defined(@lib_source_files_) || (-d $source_directory_);
-
-  # print "~~~~~~~~~~~~~~~~ commands: \n";
-  # Utils::print_array @commands_;
-  # print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-  # print "main entry files: \n";
-  # Utils::print_array @main_entry_files_;
-
 }
 
 
@@ -134,16 +123,18 @@ sub execute_gen_xbuild_makefile {
   my ($self) = @_;
 
   if (defined(@header_files_) && @header_files_ > 0) {
-    mkdir $header_directory_;
+    print "before mkdir \n";
+    mkdir $header_directory_, 0755;
     foreach my $h (@header_files_) {
-      move($h, $header_directory_);
+      move($h, $header_directory_) or die "error while moving files:$@";
     }
   }
 
-  if (defined(@source_files_) && @source_files_ > 0) {
-    mkdir $source_directory_;
-    foreach my $s (@source_files_) {
-      move($s, $source_directory_);
+  if (defined(@lib_source_files_) && @lib_source_files_ > 0) {
+    mkdir $source_directory_, 0755;
+    foreach my $s (@lib_source_files_) {
+      print "before move($s, $source_directory_) \n";
+      move($s, $source_directory_) or die "error while moving files:$@";
     }
   }
 
@@ -210,8 +201,6 @@ sub dprint {
 #   print "main entry files:\t@main_entry_files_ \n" if @main_entry_files_ > 0;
 #   print "app entry files:\t@app_entry_files_ \n" if @app_entry_files_ > 0;
 #   print "lib source files:\t@lib_source_files_ \n";
-#   print "commands to execute:\n";
-#   Utils::print_array @commands_;
 
 }
 
