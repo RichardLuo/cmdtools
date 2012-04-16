@@ -5,21 +5,30 @@ use XBuild::XBuildModuleParser;
 use XBuild::XBuildModuleInfo;
 use File::Basename;
 
-#create Employee class instance
 my $module_info = new XBuildModuleInfo() or die ($@);
-my $parser = new XBuildModuleParser() or die ($@);
-$parser->set_module_info($module_info);
+my $module_parser = new XBuildModuleParser() or die ($@);
+$module_parser->set_module_info($module_info);
 
-#set object attributes
-# $parser->set_local_module('module_name_hello');
-my @sources = glob "*.c *.cpp *.cxx *.cc";
-my @headers = glob "*.h";
+my @c_sources = glob "*.c";
+my @cpp_sources = glob "*.cpp *.cxx *.cc";
+my @headers = glob "*.h *.hpp";
 
-$parser->set_source_files(\@sources);
-$parser->set_header_files(\@headers);
-$parser->set_directories('src', 'include');
+if (@c_sources > 0 && @cpp_sources > 0) {
+  die "can not contain both C and CPP source files \n";
+}
 
-if ($parser->parse($ENV{PWD}) == 1) {
-  $parser->execute_gen_xbuild_makefile;
+if (@c_sources > 0) {
+  $module_info->set_codetype('c');
+  $module_parser->set_source_files(\@c_sources);
+} else {
+  $module_info->set_codetype('cpp');
+  $module_parser->set_source_files(\@cpp_sources);
+}
+
+$module_parser->set_header_files(\@headers);
+$module_parser->set_directories('src', 'include');
+
+if ($module_parser->parse($ENV{PWD}) == 1) {
+  $module_parser->execute_gen_xbuild_makefile;
 }
 
