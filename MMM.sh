@@ -6,10 +6,16 @@
 ################################################################
 
 ## set -ix
-# export TARGET_PRODUCT=cyanogen_crespo
+## export TARGET_PRODUCT=cyanogen_crespo
+## export TARGET_PRODUCT=cyanogen_galaxytab
+
 export ENABLE_FAST_BUILDING=yes
-export TARGET_PRODUCT=cyanogen_galaxytab
 export TARGET_BUILD_VARIANT=eng
+
+GALAXYTAB_ADB_ID=31308D4DCAE700EC
+CRESPO_ADB_ID=36337DDFB24900EC
+
+# adb -s 31308D4DCAE700EC shell
 
 function Gettop
 {
@@ -168,6 +174,16 @@ function install_droid_apk()
     echo "adb install $apk_file ok!"
 }
 
+function adb_do_remount()
+{
+    if ! adb remount 2>&1>/dev/null; then
+        echo "remount /system with RW failed!"
+        return 1
+    else
+        return 0
+    fi
+}
+
 # $1: the file need to be installed
 function install_droid_exe_or_so_file()
 {
@@ -188,22 +204,34 @@ function install_droid_exe_or_so_file()
         fi
     fi
     
-    if ! adb remount 2>&1>/dev/null; then
-        echo "remount /system with RW failed!"
+    if ! adb_do_remount; then
         exit 100
     fi
 
+    if ! adb_do_install $theFile $dstPushPath; then
+        exit 123
+    fi 
+    return 0
+}
+
+# $1: the file to install
+# $2: to where it will be installed
+function adb_do_install()
+{
+    local theFile=$1
+    local dstPushPath=$2
+
     if adb push $theFile $dstPushPath>/dev/null 2>&1; then
+#    if echo "just a test"; then
         printf '[OK] %-40s ==> %-50s\n' "`basename $theFile`" "$dstPushPath"
         if echo "$dstPushPath" | grep -qE '/system/bin/'; then
             local run_cmd="adb shell /system/bin/`basename $theFile`"
             printf "$run_cmd\n"
         fi
-    else
-        echo "Failed: adb push $theFile $dstPushPath"
-        exit 123
+        return 0
     fi 
-    return 0
+    echo "Failed: adb push $theFile $dstPushPath"
+    return 1
 }
 
 function install_jar_package()
@@ -225,21 +253,14 @@ function install_jar_package()
         fi
     fi
     
-    if ! adb remount 2>&1>/dev/null; then
-        echo "remount /system with RW failed!"
+    if ! adb_do_remount; then
         exit 100
     fi
 
-    if adb push $theFile $dstPushPath>/dev/null 2>&1; then
-        printf '[OK] %-40s ==> %-50s\n' "`basename $theFile`" "$dstPushPath"
-        if echo "$dstPushPath" | grep -qE '/system/bin/'; then
-            local run_cmd="adb shell /system/bin/`basename $theFile`"
-            printf "$run_cmd\n"
-        fi
-    else
-        echo "Failed: adb push $theFile $dstPushPath"
-        exit 123
-    fi 
+    if ! adb_do_install $theFile $dstPushPath; then
+        exit 100
+    fi
+
     return 0
 
 }
@@ -317,4 +338,13 @@ function my_mmm()
 }
 
 
-my_mmm
+function main()
+{
+    if [ -f AndroidManifest.xml ] && [ -f build.xml ] && [ -f local.properties ]; then
+        ant clean && ant debug install
+    else
+        my_mmm        
+    fi
+}
+
+main
