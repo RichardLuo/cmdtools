@@ -63,4 +63,10 @@ function extract_gzip_cpio_image_to_dir()
     fi
 }
 
+if [ "X$1" = "X" ] || [ "X$2" = "X" ]; then
+    echo "usage:"
+    printf "\textract_gzip_cpio_image_to_dir <path_to_gzipped_cpio_image_file> <path_to_output_dir> \n"
+    exit 1
+fi
+
 extract_gzip_cpio_image_to_dir $1 $2
