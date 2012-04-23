@@ -25,9 +25,9 @@ function import_cscope_config()
         path=./
     fi
 
-    # if [ -f $my_exclude_dirs ]; then
-    #     source $my_exclude_dirs
-    # fi
+    if [ -f $my_exclude_dirs ]; then
+        source $my_exclude_dirs
+    fi
 
     if [ -f $path/.cscope_exclude_dirs ]; then
         source $path/.cscope_exclude_dirs
@@ -197,6 +197,14 @@ function gen_file_list()
     bash $tmp_sh>cscope.files
 }
 
+
+function is_linux_kernel()
+{
+    if [ -d net  -a -d ipc -a -d mm -a -d sound -a -d Documentation -a -d drivers -a -d arch -a -d kernel -a -d fs ]; then
+        return 0
+    fi
+    return 1
+}
 
 function is_in_android_platform()
 {
