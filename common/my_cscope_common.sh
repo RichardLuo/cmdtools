@@ -17,9 +17,9 @@ function EXCLUDE_DIRS_add()
 function import_cscope_config()
 {
     local path=$1
-    local my_cscope=$HOME/.my_cscope
-    local my_exclude_dirs=$my_cscope/exclude_dirs
-    local my_suffixs=$my_cscope/suffixs
+    local path_common=$HOME/bin/common
+    local my_exclude_dirs=$path_common/exclude_dirs
+    local my_suffixs=$path_common/suffixs
 
     if [ -z $path ]; then
         path=./

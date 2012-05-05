@@ -1,0 +1,4 @@
+export SUFFIXS="cc cpp c c++ h hpp hxx cxx xml mk java aidl sh py pl hh s S pm py"
+# export SUFFIXS="cpp c c++ h hpp hxx cxx xml mk sh py pl hh s S"
+## export SUFFIXS="c c++ cpp h hpp hxx cxx mk sh py pl hh s S lds"
+export BASENAMES="makefile Makefile"
