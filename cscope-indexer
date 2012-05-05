@@ -67,7 +67,8 @@
 #
 #
 ###############################################################################
-set -e
+
+# set -ix
 
 LIST_ONLY=
 DIR='.'
@@ -121,22 +122,21 @@ done
 
 cd $DIR
 
-if [ "X$VERBOSE" != "X" ]
-then
+if [ "X$VERBOSE" != "X" ]; then
     echo "Creating list of files to index ..."
 fi
 
-if [ "X$RECURSE" = "X" ]
-then
+if [ "X$RECURSE" = "X" ]; then
 	# Ugly, inefficient, but it works.
 	for f in *
 	do
 	    echo "$DIR/$f"
 	done
 else
-    echo "gen_file_list"
-    pwd
+    echo "start generating file name list on [$PWD] ..."
     gen_file_list
+    echo  "[ok] gen_file_list done"
+    echo "-------------------------------------------------------------------------------"
 fi
 
 if [ "X$VERBOSE" != "X" ]
@@ -154,16 +154,29 @@ then
     echo "Indexing files ..."
 fi
 
+# echo "cscope -b -i $LIST_FILE -f $DATABASE_FILE"
+# time cscope -b -i $LIST_FILE -f $DATABASE_FILE
+
 function do_indexing()
 {
     if is_in_android_platform; then
+        echo "indexing android dir..."
         cscope -k -b -i $LIST_FILE -f $DATABASE_FILE
-    else
-        cscope -b -i $LIST_FILE -f $DATABASE_FILE
+        return
     fi
+    
+    if is_linux_kernel; then
+        echo "indexing linux kernel dir..."
+        cscope -k -b -i $LIST_FILE -f $DATABASE_FILE
+        return
+    fi
+    
+    echo "indexing common source dir..."
+    cscope -b -i $LIST_FILE -f $DATABASE_FILE
 }
 
-do_indexing
+time do_indexing
+# do_indexing
 
 if [ "X$VERBOSE" != "X" ]
 then
