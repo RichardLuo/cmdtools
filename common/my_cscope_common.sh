@@ -14,29 +14,46 @@ function EXCLUDE_DIRS_add()
     eval "EXCLUDE_DIRS=\"$EXCLUDE_DIRS $1\""
 }
 
+function import_one_file()
+{
+    if [ -z $1 ]; then
+        echo "please specify the bash file!"
+        return 1
+    fi
+    
+    if [ -f $1 ]; then
+        source $1
+        echo "imported $1"
+        return 0
+    fi
+
+#    echo "mybe $1 doesn't exist or its not a regular file!"
+    return 1
+}
+
+################################################################
+# there are two kinds of config files:
+#  1. common to all
+#  2. module specific
+# Note: the module specific config files may overwite the common
+# config files
+################################################################
 function import_cscope_config()
 {
-    local path=$1
+    local path_module=$1
     local path_common=$HOME/bin/common
-    local my_exclude_dirs=$path_common/exclude_dirs
-    local my_suffixs=$path_common/suffixs
+    local common_exclude_dirs=$path_common/exclude_dirs
+    local common_suffixs=$path_common/suffixs
 
-    if [ -z $path ]; then
-        path=./
+    if [ "X$path_module" = "X" ]; then
+        path_module=$PWD
     fi
 
-    if [ -f $my_exclude_dirs ]; then
-        source $my_exclude_dirs
-    fi
+    import_one_file $common_exclude_dirs
+    import_one_file $path_module/.cscope_exclude_dirs
 
-    if [ -f $path/.cscope_exclude_dirs ]; then
-        source $path/.cscope_exclude_dirs
-    fi
-
-    source $my_cscope/suffixs
-    if [ -f $path/.cscope_suffixs ]; then
-        source $path/.cscope_suffixs
-    fi
+    import_one_file $common_suffixs
+    import_one_file $path_module/.cscope_suffixs
 }
 
 function gen_exclude_dirs()
