@@ -9,8 +9,10 @@
 ## export TARGET_PRODUCT=cyanogen_crespo
 ## export TARGET_PRODUCT=cyanogen_galaxytab
 
-export ENABLE_FAST_BUILDING=yes
-export TARGET_BUILD_VARIANT=eng
+# export ENABLE_FAST_BUILDING=yes
+# export TARGET_BUILD_VARIANT=eng
+
+export TARGET_SIMULATOR=true
 
 GALAXYTAB_ADB_ID=31308D4DCAE700EC
 CRESPO_ADB_ID=36337DDFB24900EC
@@ -319,17 +321,21 @@ function my_mmm()
         source ./envsetup.sh
         cd -
 
-        if ! mmm . showcommands | tee /tmp/BuildP1000.log; then
+        if ! mm . showcommands | tee /tmp/BuildP1000.log; then
             echo "build error, pleas check it!"
             exit 10
         else
-            echo ""
-            echo ""
-            cat /tmp/BuildP1000.log | grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt
-            while read line
-            do
-                install_droid_module $line
-            done </tmp/EBuild.txt
+            if [ "X$TARGET_SIMULATOR" = "X" ]; then
+                echo ""
+                echo ""
+                cat /tmp/BuildP1000.log | grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt
+                while read line
+                do
+                    install_droid_module $line
+                done </tmp/EBuild.txt
+            else
+                echo "==== SIMULATOR build ok ===="
+            fi
         fi
     else
         echo "Couldn't locate the top of the tree.  Try setting TOP."
