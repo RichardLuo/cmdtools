@@ -7,15 +7,19 @@
 
 ## set -ix
 ## export TARGET_PRODUCT=cyanogen_crespo
+
 ## export TARGET_PRODUCT=cyanogen_galaxytab
 
 # export ENABLE_FAST_BUILDING=yes
 # export TARGET_BUILD_VARIANT=eng
 
 export TARGET_SIMULATOR=true
+export TARGET_SIMULATOR_WITH_BINDER=true
 
 GALAXYTAB_ADB_ID=31308D4DCAE700EC
 CRESPO_ADB_ID=36337DDFB24900EC
+
+ADB=/home/richard/sdk_droid/platform-tools/adb
 
 # adb -s 31308D4DCAE700EC shell
 
@@ -166,9 +170,9 @@ function install_droid_apk()
     local package=$(get_manifest_package_name ./AndroidManifest.xml)
 
     echo "try uninstall $package"
-    adb uninstall $package
+    $ADB uninstall $package
 
-    if ! adb install $apk_file; then
+    if ! $ADB install $apk_file; then
         echo "failed to install $package"
         exit 198
     fi
@@ -178,7 +182,7 @@ function install_droid_apk()
 
 function adb_do_remount()
 {
-    if ! adb remount 2>&1>/dev/null; then
+    if ! $ADB remount 2>&1>/dev/null; then
         echo "remount /system with RW failed!"
         return 1
     else
@@ -223,7 +227,7 @@ function adb_do_install()
     local theFile=$1
     local dstPushPath=$2
 
-    if adb push $theFile $dstPushPath>/dev/null 2>&1; then
+    if $ADB push $theFile $dstPushPath>/dev/null 2>&1; then
 #    if echo "just a test"; then
         printf '[OK] %-40s ==> %-50s\n' "`basename $theFile`" "$dstPushPath"
         if echo "$dstPushPath" | grep -qE '/system/bin/'; then
@@ -313,15 +317,15 @@ function my_mm()
     fi
 }
 
-function my_mmm()
+function start_build()
 {
     T=$(Gettop)
     if [ "$TOP_DIR" ]; then
         cd $(Gettop)/build
         source ./envsetup.sh
         cd -
-
-        if ! mm . showcommands | tee /tmp/BuildP1000.log; then
+        echo "before execute $1"
+        if ! $1 | tee /tmp/BuildP1000.log; then
             echo "build error, pleas check it!"
             exit 10
         else
@@ -349,8 +353,23 @@ function main()
     if [ -f AndroidManifest.xml ] && [ -f build.xml ] && [ -f local.properties ]; then
         ant clean && ant debug install
     else
-        my_mmm        
+        start_build mmm
     fi
 }
 
-main
+echo "================ $0" 
+
+PROG=`basename $0`
+
+case $PROG in
+    MMM)
+        start_build mmm
+        ;;
+    MM)
+        start_build mm
+        ;;
+    *)
+        echo "Usage: MMM | MM"
+        exit 3
+        ;;
+esac

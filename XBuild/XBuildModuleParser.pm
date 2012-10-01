@@ -78,6 +78,24 @@ sub parse_all_files {
 }
 
 
+sub move_files {
+  if (defined(@header_files_) && @header_files_ > 0) {
+    print "before mkdir \n";
+    mkdir $header_directory_, 0755;
+    foreach my $h (@header_files_) {
+      move($h, $header_directory_) or die "error while moving files:$@";
+    }
+  }
+
+  if (defined(@lib_source_files_) && @lib_source_files_ > 0) {
+    mkdir $source_directory_, 0755;
+    foreach my $s (@lib_source_files_) {
+      print "before move($s, $source_directory_) \n";
+      move($s, $source_directory_) or die "error while moving files:$@";
+    }
+  }
+}
+
 sub parse {
   my ($self, $path) = @_;
 
@@ -87,6 +105,8 @@ sub parse {
   $module_path_ = $path if defined($path);
   $self->parse_all_files;
   $self->classify_main_entry_files;
+  $self->move_files;
+
   my $libname = "lib" . Utils::get_base_local_module_name($path) . ".a";
   $self->{'module_info_'}->set_libname($libname);
 
@@ -121,22 +141,6 @@ sub parse {
 
 sub execute_gen_xbuild_makefile {
   my ($self) = @_;
-
-  if (defined(@header_files_) && @header_files_ > 0) {
-    print "before mkdir \n";
-    mkdir $header_directory_, 0755;
-    foreach my $h (@header_files_) {
-      move($h, $header_directory_) or die "error while moving files:$@";
-    }
-  }
-
-  if (defined(@lib_source_files_) && @lib_source_files_ > 0) {
-    mkdir $source_directory_, 0755;
-    foreach my $s (@lib_source_files_) {
-      print "before move($s, $source_directory_) \n";
-      move($s, $source_directory_) or die "error while moving files:$@";
-    }
-  }
 
   my $local_mkfile = $module_path_ . "/Makefile";
   if ($gen_makefile_ == 1) {

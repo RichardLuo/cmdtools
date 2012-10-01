@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ix
+
 source $HOME/bin/common/my_cscope_common.sh
 
 while [ -n "$1" ]

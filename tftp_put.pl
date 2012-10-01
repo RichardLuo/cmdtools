@@ -10,7 +10,7 @@
 
 use TFTP;
 
-my $tftp = new TFTP("192.168.1.221");
+my $tftp = new TFTP("127.0.0.1");
 $tftp->get("jff2.128");
 $tftp->octet;
 $tftp->put("tftp_put.pl");

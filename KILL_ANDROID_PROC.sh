@@ -7,7 +7,7 @@
 
 
 if [ -z $1 ]; then
-    name=mfctest
+    name=mediaserver
 else
     name=$1
 fi

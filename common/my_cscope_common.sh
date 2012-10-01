@@ -27,7 +27,6 @@ function import_one_file()
         return 0
     fi
 
-#    echo "mybe $1 doesn't exist or its not a regular file!"
     return 1
 }
 

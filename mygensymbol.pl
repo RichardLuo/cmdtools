@@ -2,19 +2,18 @@
 use strict;
 use warnings;
 use diagnostics;
-use Shell qw(ls find diff nm);
 
-my $demangle = ' -C ';
-my $sh = Shell->new;
+use Shell qw(ls find diff nm);
 
 die "usage: \n\\t mygensymbol.pl  [directory name] \n" if $#ARGV != 0;
 
-my $find_params = '-name *.[oa]';
+my $sh = Shell->new;
+
 my $top_dir = shift;
 
-my @find_files = $sh->find(" $top_dir ".$find_params);
+my @object_files = glob "$top_dir/*.[oa]";
 
-foreach (@find_files) {
+foreach (@object_files) {
   chomp;
   if (-e $_) {
 	my $filename = $_;

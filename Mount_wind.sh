@@ -1,1 +1,2 @@
-sudo mount -t vfat -o iocharset=cp936 /dev/hda2 wind
+mkdir -p wind
+sudo mount -t ntfs /dev/sda2 wind

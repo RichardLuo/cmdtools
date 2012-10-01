@@ -146,8 +146,8 @@ sub gen_xbuild_makefile {
   my ($self, $path) = @_;
   open(OutFile, ">$path") || die("Cannot open $path\n");
   printf OutFile "%s", $makefile_header;
-  printf OutFile "EXENAME := %s\n", $self->{'_exename'} if defined $self->{'_exename'};
-  printf OutFile "LIBNAME := %s\n", $self->{'_libname'} if defined $self->{'_libname'};
+  printf OutFile "EXENAME := %s\n", $self->{'_exename'} if $self->{'_exename'} ne "";
+  printf OutFile "LIBNAME := %s\n", $self->{'_libname'} if $self->{'_libname'} ne "";
   printf OutFile "CODE_TYPE := %s\n", $self->{'_code_type'} if defined $self->{'_code_type'};
 
   if (defined(@{$self->{'_code_body'}}) && @{$self->{'_code_body'}} > 0) {
