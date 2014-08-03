@@ -7,6 +7,6 @@
 
 rm -rf assets bin/ libs/ gen/ \
     local.properties build.xml cscope.* .class* \
-    .projec* obj  proguard.cfg _index.html build.properties
+    .projec* obj  proguard.cfg _index.html build.properties .idea
 
 

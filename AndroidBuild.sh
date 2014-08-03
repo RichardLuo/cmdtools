@@ -324,7 +324,7 @@ function start_build()
         cd $(Gettop)/build
         source ./envsetup.sh
         cd -
-        echo "before execute $1"
+        echo "before execute $1 PWD:$PWD"
         if ! $1 | tee /tmp/BuildP1000.log; then
             echo "build error, pleas check it!"
             exit 10
@@ -332,7 +332,7 @@ function start_build()
             if [ "X$TARGET_SIMULATOR" = "X" ]; then
                 echo ""
                 echo ""
-                cat /tmp/BuildP1000.log | grep Install:|sed -e 's/INSTALL: //'>/tmp/EBuild.txt
+                cat /tmp/BuildP1000.log | grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt
                 while read line
                 do
                     install_droid_module $line

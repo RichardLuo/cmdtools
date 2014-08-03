@@ -3,15 +3,12 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Shell qw(cat);
-
 sub get_simbol {
 	$_ = shift;
 	if (/^(\w+)/) {
 		return $1;
 	}
 }
-my $sh = Shell->new;
 #die "usage: myparsesymbol.pl your_file_path" if $#ARGV != 0;
 my @lines = <>;
 

@@ -11,6 +11,6 @@ for d in 0 1 2 3 4 5 6 7 8 9; do
     if [ -c /dev/ttyUSB$d ]; then
         perl -p -i -e "s/^set line .dev.ttyUSB.*/set line \/dev\/ttyUSB${d}/" $kerm_cfg
         exec kermit
-        ## cat $kerm_cfg
+        # cat $kerm_cfg
     fi
 done

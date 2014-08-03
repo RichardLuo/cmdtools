@@ -5,10 +5,8 @@ use Cwd;
 use strict;
 use warnings;
 use diagnostics;
-use Shell qw(ls find diff nm);
 
 my $demangle = ' -C ';
-my $sh = Shell->new;
 
 use File::Find;
 
@@ -28,7 +26,7 @@ sub d {
   if ($file =~ /\w+\.(o|a)$/) {
     print 'file is:' . "$file" . "\n";
 
-    my @nm_out = nm(' '.$file);
+    my @nm_out = `nm $file`
 
     foreach (@nm_out) {
       #			next unless /^\w+\s+([tT])\s+(\w+)\s*$/;

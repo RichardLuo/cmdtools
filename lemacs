@@ -1,2 +1,17 @@
-#! /bin/sh
-LC_CTYPE=zh_CN.UTF-8 emacs $@ &
+#! /bin/bash
+################
+# from .bashrc
+# strange problem, function must be defined here! 
+################################################################
+function SETUP_ANDROID_DEVELOPEMENT() {
+    if [ "X"$HAS_SETUP_ANDROID = "X" ]; then
+        source ~/.bash_android
+        echo "OK: bash configs for android sdk has been setup"
+    else
+        echo "WARN: bash configs for android sdk has already been setup!"
+    fi
+}
+
+SETUP_ANDROID_DEVELOPEMENT
+export LC_CTYPE=zh_CN.UTF-8 
+emacs $@ &
