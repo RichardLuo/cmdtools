@@ -338,7 +338,8 @@ function start_build()
                 cat /tmp/BuildP1000.log | grep Install:|sed -e 's/Install: //'>/tmp/EBuild.txt
                 while read line
                 do
-                    install_droid_module $line
+#                    install_droid_module $line
+                    echo $line
                 done </tmp/EBuild.txt
             else
                 echo "==== SIMULATOR build ok ===="
