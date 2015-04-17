@@ -13,13 +13,16 @@
 # export ENABLE_FAST_BUILDING=yes
 # export TARGET_BUILD_VARIANT=eng
 
-export TARGET_SIMULATOR=true
-export TARGET_SIMULATOR_WITH_BINDER=true
+export TARGET_PRODUCT=beagleboneblack
 
-GALAXYTAB_ADB_ID=31308D4DCAE700EC
-CRESPO_ADB_ID=36337DDFB24900EC
+# export TARGET_SIMULATOR=true
+# export TARGET_SIMULATOR_WITH_BINDER=true
 
-ADB=/home/richard/sdk_droid/platform-tools/adb
+# GALAXYTAB_ADB_ID=31308D4DCAE700EC
+# CRESPO_ADB_ID=36337DDFB24900EC
+
+# ADB=/home/richard/sdk_droid/platform-tools/adb
+ADB=${HOME}/android-sdk/adt-bundle-linux-x86_64-20130219/sdk/platform-tools/adb
 
 # adb -s 31308D4DCAE700EC shell
 
