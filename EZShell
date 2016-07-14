@@ -1,0 +1,44 @@
+#!/bin/sh
+################################################################
+# file:   EEE.sh
+# author: Richard Luo
+# date:   2016-07-14 17:49:34
+################################################################
+
+usage() { 
+    echo "Usage: $0 [-s] [-p <number>]" 1>&2; 
+    echo "                          -s: run as a zigbee service simulator" 1>&2; 
+    echo "                          -p <number>: it uses the /dev/ttyUSB<number> as the uart port" 1>&2; 
+    exit 1; 
+}
+
+SIMULATOR="false"
+PORT="/dev/ttyUSB0"
+
+while getopts "hsp:" o; do
+    case "${o}" in
+        s)
+            SIMULATOR="true"
+            ;;
+        p)
+            p=${OPTARG}
+            ((0 <= p && p <= 10)) || usage
+            PORT="/dev/ttyUSB$p"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ $SIMULATOR = "true" ]; then
+    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -s 2>&1 | tee /home/richard/ddbs/frameworks/ezshell-simulator-$(date +%Y%m%d-%H%S).log
+elif [ -c $PORT ]; then
+    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/ezshell$(date +%Y%m%d-%H%S).log    
+else
+    echo "ERROR: [$PORT] is not a device file"
+    usage
+fi
+

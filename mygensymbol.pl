@@ -23,7 +23,7 @@ foreach (@object_files) {
 #	my @nm_out = $sh->nm($noDemangle.$_);
 #	my @nm_out = $sh->nm($demangle.$filename);
 
-	my @nm_out = nm(' '.$filename);
+	my @nm_out = `nm $filename`
 
 	foreach (@nm_out) {
 	  #			next unless /^\w+\s+([tT])\s+(\w+)\s*$/;
