@@ -13,10 +13,8 @@
 # export ENABLE_FAST_BUILDING=yes
 # export TARGET_BUILD_VARIANT=eng
 
-export TARGET_SIMULATOR=true
-export TARGET_SIMULATOR_WITH_BINDER=true
-
-# export TARGET_PRODUCT=beagleboneblack
+# export TARGET_SIMULATOR=true
+# export TARGET_SIMULATOR_WITH_BINDER=true
 
 GALAXYTAB_ADB_ID=31308D4DCAE700EC
 CRESPO_ADB_ID=36337DDFB24900EC
@@ -184,7 +182,10 @@ function install_droid_apk()
 
 function adb_do_remount()
 {
-    if ! $ADB remount 2>&1>/dev/null; then
+    if [ ! -x $ADB ]; then
+        echo "no adb"
+        return 1
+    elif ! $ADB remount 2>&1>/dev/null; then
         echo "remount /system with RW failed!"
         return 1
     else
@@ -365,9 +366,15 @@ PROG=`basename $0`
 
 case $PROG in
     MMM)
+        export TARGET_PRODUCT=beagleboneblack
         start_build mmm
         ;;
-    MM)
+    MMx)
+        export TARGET_SIMULATOR=true
+        export TARGET_SIMULATOR_WITH_BINDER=true
+        start_build mmm
+        ;;
+   MM)
         start_build mm
         ;;
     *)
