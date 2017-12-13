@@ -7,23 +7,34 @@
 
 usage() { 
     echo "Usage: $0 [-s] [-p <number>]" 1>&2; 
+    echo "                          -r: connect to the remote socat" 1>&2; 
     echo "                          -s: run as a zigbee service simulator" 1>&2; 
     echo "                          -p <number>: it uses the /dev/ttyUSB<number> as the uart port" 1>&2; 
     exit 1; 
 }
 
+REMOTE="false"
 SIMULATOR="false"
 PORT="/dev/ttyUSB0"
 
-while getopts "hsp:" o; do
+while getopts "hrsp:" o; do
     case "${o}" in
         s)
             SIMULATOR="true"
             ;;
+        r)
+            REMOTE="true"
+            ;;
         p)
-            p=${OPTARG}
-            ((0 <= p && p <= 10)) || usage
-            PORT="/dev/ttyUSB$p"
+            if [ "X$OPTARG" = "X" ]; then
+                PORT="/dev/ttyUSB0"
+            elif [ ! -c $OPTARG ]; then
+                echo "not a device file $OPTARG"
+                exit 10
+            else
+                echo "using device $OPTARG"
+                PORT=$OPTARG
+            fi
             ;;
         *)
             usage
@@ -33,10 +44,29 @@ done
 
 shift $((OPTIND-1))
 
+# export ANDROID_PRINTF_LOG="time"
+export ANDROID_PRINTF_LOG="thread"
+
 if [ $SIMULATOR = "true" ]; then
-    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -s 2>&1 | tee /home/richard/ddbs/frameworks/ezshell-simulator-$(date +%Y%m%d-%H%S).log
+    logfile=ezshell-simulator-$(date +%Y%m%d-%H%S).log
+    linkfile=ezshell-simulator.log
+    touch /home/richard/ddbs/frameworks/logs/$logfile 
+    ln -fs /home/richard/ddbs/frameworks/logs/$logfile /home/richard/ddbs/frameworks/$linkfile
+    # ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -P "@simul" -s 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
+    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -s 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
+elif [ $REMOTE = "true" ]; then
+    logfile=ezshell$(date +%Y%m%d-%H%S).log
+    linkfile=ezshell-remote.log
+    touch /home/richard/ddbs/frameworks/logs/$logfile 
+    ln -fs /home/richard/ddbs/frameworks/logs/$logfile /home/richard/ddbs/frameworks/$linkfile
+    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -p /dev/pts/13 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
 elif [ -c $PORT ]; then
-    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/ezshell$(date +%Y%m%d-%H%S).log    
+    logfile=ezshell$(date +%Y%m%d-%H%S).log
+    linkfile=ezshell.log
+    touch /home/richard/ddbs/frameworks/logs/$logfile 
+    ln -fs /home/richard/ddbs/frameworks/logs/$logfile /home/richard/ddbs/frameworks/$linkfile
+    # valgrind --log-file=$logfile.valgrind --tool=memcheck --leak-check=full
+    ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
 else
     echo "ERROR: [$PORT] is not a device file"
     usage
