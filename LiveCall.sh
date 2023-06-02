@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   LiveCall.sh
 # author: Richard Luo

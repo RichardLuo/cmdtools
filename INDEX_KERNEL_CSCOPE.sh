@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # EXCLUDE_DIRS="hello nihao"
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: SWITCH_CSCOPE_DB.sh
 # author: Richard Luo

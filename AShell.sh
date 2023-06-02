@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   Ashell.sh
 # author: Richard Luo

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: MountWinceSource.sh
 # author: Richard Luo

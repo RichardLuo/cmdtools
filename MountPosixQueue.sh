@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # MountPosixQueue.sh
 # Richard Luo

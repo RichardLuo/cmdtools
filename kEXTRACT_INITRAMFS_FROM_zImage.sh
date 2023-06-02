@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: cmd_run.sh
 # author: Richard Luo

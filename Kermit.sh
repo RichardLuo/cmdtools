@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   Kermit.sh
 # author: Richard Luo

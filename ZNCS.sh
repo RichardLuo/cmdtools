@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   Ezshell.sh
 # author: Richard Luo

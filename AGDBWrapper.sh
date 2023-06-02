@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: AGDBWrapper.sh
 # author: Richard Luo

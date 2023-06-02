@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: GbkUtf8.sh
 # author: Richard Luo

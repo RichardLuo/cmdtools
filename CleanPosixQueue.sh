@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # CleanPosixQueue.sh
 # Richard Luo

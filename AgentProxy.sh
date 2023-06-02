@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   AgentProxy.sh
 # author: Richard Luo

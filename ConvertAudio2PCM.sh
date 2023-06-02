@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: ConvertAudio2PCM.sh
 # author: Richard Luo

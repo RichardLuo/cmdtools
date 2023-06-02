@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: mk_android_sysimg.sh
 # author: Richard Luo

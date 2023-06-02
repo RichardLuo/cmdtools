@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: extract_my_initrd.sh
 # author: Richard Luo

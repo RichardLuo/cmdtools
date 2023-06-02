@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: KILL_ANDROID_PROC.sh
 # author: Richard Luo

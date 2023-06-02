@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: LD_NEED.sh
 # author: Richard Luo

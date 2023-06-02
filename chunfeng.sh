@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 lan_port=eth0
 wan_port=eth1

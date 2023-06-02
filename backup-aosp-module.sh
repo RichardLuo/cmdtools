@@ -34,7 +34,7 @@ function backup_module {
         # echo "backup_name: $backup_name"
         if [ ! -d "$BACKUP_TOP/$backup_name" ] ; then
             if mv $1 "$BACKUP_TOP/$backup_name" ; then
-                echo "OK: moved $T/$relative_path to $BACKUP_TOP/$backup_name"
+                echo "OK: moved $relative_path to $BACKUP_TOP/$backup_name"
             else
                 echo "Failed to mv $relative_path $BACKUP_TOP/$backup_name"
                 exit -1
@@ -50,4 +50,8 @@ function backup_module {
 }
 
 export BACKUP_TOP='/home/richard/aosp-sources/backup-local'
-backup_module $1
+
+for arg in "$@"
+do
+    backup_module $arg
+done
