@@ -19,7 +19,7 @@
 GALAXYTAB_ADB_ID=31308D4DCAE700EC
 CRESPO_ADB_ID=36337DDFB24900EC
 
-ADB=/home/richard/sdk_droid/platform-tools/adb
+ADB=/usr/bin/adb
 
 # adb -s 31308D4DCAE700EC shell
 
@@ -215,12 +215,11 @@ function install_droid_exe_or_so_file()
     
     if ! adb_do_remount; then
         exit 100
-    fi
-
-    if ! adb_do_install $theFile $dstPushPath; then
+    elif ! adb_do_install $theFile $dstPushPath; then
         exit 123
+    else
+        return 0
     fi 
-    return 0
 }
 
 # $1: the file to install

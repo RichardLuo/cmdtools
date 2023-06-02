@@ -7,7 +7,9 @@
 
 # set -ix
 
-path_sys=/home/richard/ddbs/out/host/linux-x86/pr/sim/system
+# path_sys=/home/richard/ddbs/out/host/linux-x86/pr/sim/system
+path_sys=/home/richard/lively/out/target/product/beagleboneblack/system
+path_pack=/home/richard/lively/zncs/
 path_zncs=$path_sys/bin/zncs 
 
 if [ ! -f $path_zncs ]; then
@@ -17,11 +19,21 @@ fi
 
 TIME_STAMP=$(date +%Y%m%d-%H%S)
 
-(cd $path_sys/.. && tar zcf zncs.tgz system/ && sudo cp zncs.tgz /var/www/zncs-$TIME_STAMP.tgz && cd /var/www && sudo ln -fs zncs-$TIME_STAMP.tgz zncs.tgz )
-ls -l /var/www/zncs-$TIME_STAMP.tgz
+ZNCS_PACKAGE_NAME=zncs-$TIME_STAMP.tgz
+ZNCS_PACKAGE=$path_pack/$ZNCS_PACKAGE_NAME
 
-echo "wget http://192.168.2.130/zncs-$TIME_STAMP.tgz"
-echo "wget http://192.168.2.130/zncs-$TIME_STAMP.tgz"
-echo "wget http://192.168.2.130/zncs-$TIME_STAMP.tgz"
-echo "wget http://192.168.2.130/zncs-$TIME_STAMP.tgz"
+# (cd $path_sys/.. && tar zcf zncs.tgz system/ && sudo cp zncs.tgz $ZNCS_PACKAGE && cd $path_pack && ln -fs $ZNCS_PACKAGE_NAME zncs.tgz && ls -l )
+
+(cd $path_sys/.. &&                     \
+     tar zcf zncs.tgz system/ &&        \
+     cp zncs.tgz $ZNCS_PACKAGE &&  \
+     ossclient.py --overwrite ${ZNCS_PACKAGE} io-xiaoyan-release-bucket-root/zncs/${ZNCS_PACKAGE_NAME} )
+
+
+
+# IP=192.168.2.155:8800
+# echo "wget http://$IP/zncs-$TIME_STAMP.tgz"
+# echo "wget http://$IP/zncs-$TIME_STAMP.tgz"
+# echo "wget http://$IP/zncs-$TIME_STAMP.tgz"
+# echo "wget http://$IP/zncs-$TIME_STAMP.tgz"
 

@@ -29,7 +29,7 @@ perl -p -i -e 's/\bboolean\b/bool/g' $FILE
 perl -p -i -e 's/\bTRUE\b/true/g' $FILE
 perl -p -i -e 's/\bFALSE\b/false/g' $FILE
 
-perl -p -i -e 's/\bemberAfPluginKeypressEffectRegisterMultiPress\b/emberAfPluginKeypressEffectRegister/g' $FILE
+# perl -p -i -e 's/\bemberAfPluginKeypressEffectRegisterMultiPress\b/emberAfPluginKeypressEffectRegister/g' $FILE
 
 
 

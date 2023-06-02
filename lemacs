@@ -13,9 +13,11 @@ function SETUP_ANDROID_DEVELOPEMENT() {
 }
 
 SETUP_ANDROID_DEVELOPEMENT
-export LC_CTYPE=zh_CN.UTF-8 
+# export LC_CTYPE=zh_CN.UTF-8 
+
+emacs --debug-init &
 
 # emacs --debug-init $@ &
 # emacs --debug-init $@ &
-emacs $@ &
+#  emacs23 $@ &
 # /apps/emacs24/bin/emacs --debug-init $@ &

@@ -37,7 +37,7 @@ fi
 
 
 # echo $find_cmd " -o \( -print0 \) " > /tmp/emcgrep.cmd
-echo $find_cmd " -print0 " > /tmp/emcgrep.cmd
+echo $find_cmd " -print0 | sort -z -r " > /tmp/emcgrep.cmd
 
 # cat /tmp/emcgrep.cmd
 # echo ""

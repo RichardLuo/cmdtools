@@ -6,10 +6,10 @@
 ################################################################
 
 usage() { 
-    echo "Usage: $0 [-s] [-p <number>]" 1>&2; 
-    echo "                          -r: connect to the remote socat" 1>&2; 
-    echo "                          -s: run as a zigbee service simulator" 1>&2; 
-    echo "                          -p <number>: it uses the /dev/ttyUSB<number> as the uart port" 1>&2; 
+    echo "Usage: $0 [-s] [-p <path to tty device file>]"                    1>&2; 
+    echo "                          -r: connect to the remote socat"        1>&2; 
+    echo "                          -s: run as a zigbee service simulator"  1>&2; 
+    echo "                          -p <path>: default to /dev/ttyUSB0"     1>&2; 
     exit 1; 
 }
 
@@ -44,8 +44,8 @@ done
 
 shift $((OPTIND-1))
 
-# export ANDROID_PRINTF_LOG="time"
-export ANDROID_PRINTF_LOG="thread"
+export ANDROID_PRINTF_LOG="time"
+# export ANDROID_PRINTF_LOG="thread"
 
 if [ $SIMULATOR = "true" ]; then
     logfile=ezshell-simulator-$(date +%Y%m%d-%H%S).log
@@ -65,7 +65,7 @@ elif [ -c $PORT ]; then
     linkfile=ezshell.log
     touch /home/richard/ddbs/frameworks/logs/$logfile 
     ln -fs /home/richard/ddbs/frameworks/logs/$logfile /home/richard/ddbs/frameworks/$linkfile
-    # valgrind --log-file=$logfile.valgrind --tool=memcheck --leak-check=full
+    # valgrind --log-file=$logfile.valgrind --tool=memcheck --leak-check=full ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
     ~/ddbs/out/host/linux-x86/pr/sim/system/bin/ezshell -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
 else
     echo "ERROR: [$PORT] is not a device file"

@@ -70,8 +70,8 @@ elif [ -c $PORT ]; then
     if [ $DAEMON = "true" ]; then
         ~/ddbs/out/host/linux-x86/pr/sim/system/bin/zbs -p $PORT -d 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
     else
-        # valgrind --log-file=$logfile.valgrind --tool=memcheck --leak-check=full
-        ~/ddbs/out/host/linux-x86/pr/sim/system/bin/zbs -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
+        valgrind --log-file=$logfile.valgrind --tool=memcheck --leak-check=full \
+                 ~/ddbs/out/host/linux-x86/pr/sim/system/bin/zbs -p $PORT 2>&1 | tee /home/richard/ddbs/frameworks/logs/$logfile
     fi
 else
     echo "ERROR: [$PORT] is not a device file"
