@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: build_nexus_one.sh
 # author: Richard Luo

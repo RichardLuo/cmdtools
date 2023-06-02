@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 target_dir=/home/richard/share/ak4
 board_dir=/home/richard/doob/trunk/sys/boot_loader/NorBsp/board/at91sam9260ek

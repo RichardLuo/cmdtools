@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   FirstGitCommit.sh
 # author: Richard Luo

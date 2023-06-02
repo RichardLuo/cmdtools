@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: DIFF_DROID.sh
 # author: Richard Luo

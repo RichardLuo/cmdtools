@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   UPLOAD_ZNCS.sh
 # author: Richard Luo

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: ANDROID_LIBS_DIFF.sh
 # author: Richard Luo

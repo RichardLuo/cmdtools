@@ -1,4 +1,4 @@
-#!/bin/sh --
+#!/bin/bash --
 #
 # display ANSI colours and test bold/blink attributes
 #-------------------------------------------------------------------------

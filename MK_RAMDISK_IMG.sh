@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: MK_IMAGE.sh
 # author: Richard Luo

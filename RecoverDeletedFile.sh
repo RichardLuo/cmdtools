@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # RecoverDeletedFile.sh
 # Richard Luo

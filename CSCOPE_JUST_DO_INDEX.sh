@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: CSCOPE_JUST_DO_INDEX.sh
 # author: Richard Luo

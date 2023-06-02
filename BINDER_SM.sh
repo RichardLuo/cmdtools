@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   BINDER_SM.sh
 # author: Richard Luo

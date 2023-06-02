@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: svn_clone_git.sh
 # author: Richard Luo

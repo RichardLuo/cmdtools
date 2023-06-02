@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: IndexAndroid.sh
 # author: Richard Luo

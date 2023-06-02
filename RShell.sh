@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file:   ZShell.sh
 # author: Richard Luo
@@ -33,3 +33,4 @@ if [ $1 = "cli" ]; then
 fi
 
 # rshell -u box_richard_x86 -P 5555  -s xiaoyan.io  -p 5222  -t -l
+# rshell -u richard -P 5555  -s liveliy.com  -p 5222  -t -l

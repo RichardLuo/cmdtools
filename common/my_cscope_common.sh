@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: my_cscope_common.sh
 # author: Richard Luo
@@ -55,8 +55,21 @@ function import_cscope_config()
     import_one_file $path_module/.cscope_suffixs
 }
 
+function gen_exclude_dirs_from_config_file() {
+    local dirs=""
+    if [ -f ".emcgrep-exclude-dirs" ] ; then
+        local lines=$(cat ".emcgrep-exclude-dirs")
+        for d in $lines; do
+            dirs="$d $dirs"
+        done
+    fi
+    echo "$dirs"
+}    
+
 function gen_exclude_dirs()
 {
+    local EXCLUDE_DIRS=$(gen_exclude_dirs_from_config_file)
+
     if [ "X$EXCLUDE_DIRS" = "X" ]; then
         return 0
     fi

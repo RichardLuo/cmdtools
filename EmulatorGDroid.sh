@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: EmulatorGinger.sh
 # author: Richard Luo

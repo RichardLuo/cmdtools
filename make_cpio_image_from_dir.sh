@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: MK_CPIO_IMG.sh
 # author: Richard Luo

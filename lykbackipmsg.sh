@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 Date=`date +%Y%m%d%S`
 tar zcvf  ./ipmsg.log.kk$Date.tgz ~/msg/ipmsg.log
 mv ./ipmsg.log.kk*.tgz /other/backup

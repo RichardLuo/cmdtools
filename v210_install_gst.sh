@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # file: install_gst_lib.sh
 # author: Richard Luo
